@@ -1,5 +1,0 @@
-package states
-
-class Tokenizer {
-
-}
