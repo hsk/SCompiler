@@ -3,7 +3,7 @@ package org.scompiler
 object TokenType extends Enumeration {
   type TokenType = Value
 
-  val Indefined = Value("Indefined")
+  val Undefined = Value("Undefined")
   val Number = Value("Number")
   val ReservedWord = Value("ReservedWord")
   val Symbol = Value("Symbol")
