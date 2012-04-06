@@ -7,35 +7,36 @@ class NumericStateInit(initWithSign: Boolean = false) extends State {
   var expectingAnotherNumber = initWithSign
 
   def nextState(letter: Char, tokenizer: Tokenizer): State = letter match {
-    case digit if ('0' to '9').contains(digit) =>
-      {
-        expectingAnotherNumber = false
-        this
-      };
+    case digit if ('0' to '9').contains(digit) => {
+      expectingAnotherNumber = false
+      return this
+    }
+
     case '.' if !hasPreviousPunctuation => {
       hasPreviousPunctuation = true
       expectingAnotherNumber = true
-      this
+      return this
     }
+
     case 'E' if (!expectingAnotherNumber) => new NumericStateScientificNotation
+
     case ' ' | ';' | '\0' => {
       tokenizer.finishToken(TokenType.Number)
-      new InitialState
+      return new InitialState
     }
-    case _ => new NotDefinedState;
-  }
 
-  def isFinalState: Boolean = !expectingAnotherNumber;
+    case _ => new NotDefinedState
+  }
 }
 
 class NumericStateScientificNotation extends State {
-  var hasPreviousNumber: Boolean = false;
-  var hasSign: Boolean = false;
+  var hasPreviousNumber: Boolean = false
+  var hasSign: Boolean = false
 
   def nextState(letter: Char, tokenizer: Tokenizer): State = letter match {
     case digit if ('0' to '9').contains(digit) => {
-      hasPreviousNumber = true;
-      return this;
+      hasPreviousNumber = true
+      return this
     }
 
     case '-' if (!hasSign && !hasPreviousNumber) => {
@@ -45,11 +46,9 @@ class NumericStateScientificNotation extends State {
 
     case ' ' | ';' | '\0' => {
       tokenizer.finishToken(TokenType.Number)
-      new InitialState
+      return new InitialState
     }
 
     case _ => new NotDefinedState
   }
-
-  def isFinalState: Boolean = hasPreviousNumber;
 }

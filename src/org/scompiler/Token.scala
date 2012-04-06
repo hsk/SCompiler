@@ -7,5 +7,5 @@ class Token(val tokenType: TokenType, val tokenName: String) {
       case t: Token => (tokenType.equals(t.tokenType)) && (tokenName.equals(t.tokenName))
       case _ => false
   }  
-  override def toString : String = tokenName + "(" + tokenType.toString() + ")" 
+  override def toString : String = tokenName + "(" + tokenType.toString + ")"
 }

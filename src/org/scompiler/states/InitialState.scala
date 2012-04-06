@@ -1,25 +1,34 @@
 package org.scompiler.states
 import org.scompiler.Tokenizer
+import org.scompiler.LexicalConstants._
 
 class InitialState extends State {
-  private val letters = ('a' to 'z') union ('A' to 'Z')
-  private val alfaNumericRange = letters union ('0' to '9')
-  private val reservedSymbols = Array("+", "-", "*", "/", "=", ":",
-    ".", ",", ";", "'", ":=", "<",
-    ">", ">=", "<=", "<>", "(", ")",
-    "[", "]", "{", "}", "..", "^");
+  def nextState(actualChar: Char, tokenizer: Tokenizer): State = actualChar match {
+    // String - Not Implemented
+    case '\'' => new NotDefinedState
 
-  def nextState(letter: Char, tokenizer: Tokenizer): State = letter match {
-    case '\'' => new NotDefinedState // Not implemented
+    // Numbers
+    case digit if numbers contains (digit) => new NumericStateInit(false)
 
-    case digit if ('0' to '9').contains(digit) => new NumericStateInit(false);
+    // Possible Number(or symbol) - Partial implemented(only numeric behaviour)
+    case '-' => new NumericStateInit(true)
 
-    case '-' => new NumericStateInit(true);
+    //Verify if there are any symbol that starts with the given character
+    case symbol if reservedSymbols exists ( _.startsWith( symbol.toString ) )  => {
 
-    case symbol if (!alfaNumericRange.contains(symbol)) => new NotDefinedState // Not implemented
+      //Get the list of possible symbols of the given character
+      val possibleSymbols = reservedSymbols filter ( _.startsWith(symbol.toString) )
+      // new SymbolStateInit(possibleSymbols)
+      new NotDefinedState
+    }
 
-    case _ => new NotDefinedState;
+    //Identifier
+    case letter if letters contains letter => new IdentifierStateInit
+
+    //Ignore spaces and line-breaks
+    case ' ' | '\n' => this
+
+    //Everything else is a error
+    case _ => new NotDefinedState
   }
-
-  def isFinalState: Boolean = false;
 }
