@@ -7,7 +7,7 @@ import org.scompiler.states.State
 class LexicalValidator {
   def getTokens(input: Iterator[Char]): Iterator[Token] = {
 
-    var letter: Char = '\0'
+    var actualCharacter: Char = '\0'
     var state: State = new InitialState
     val tokenizer: Tokenizer = new Tokenizer
 
@@ -16,13 +16,13 @@ class LexicalValidator {
         tokenizer.finishToken(TokenType.Undefined)
         state = new InitialState
       } else {
-        letter = input.next()
+        actualCharacter = input.next()
       }
 
-      state = state.nextState(letter, tokenizer)
+      state = state.nextState(actualCharacter, tokenizer)
 
       if (!state.isInstanceOf[InitialState] && !state.isInstanceOf[NotDefinedState]) {
-        tokenizer.registerLetter(letter)
+        tokenizer.registerLetter(actualCharacter)
       }
     }
 

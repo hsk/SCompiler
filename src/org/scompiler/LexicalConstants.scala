@@ -8,10 +8,16 @@ object LexicalConstants {
 
   val alphaNumeric = letters union numbers
 
-  val reservedSymbols = Set("+", "-", "*", "/", "=", ":",
-    ".", ",", ";",  ":=", "<", ">",
-    ">=", "<=", "<>", "(", ")", "[",
-    "]", "{", "}", "..", "^")
+  val endTokens = Array(' ', '\0', '\n');
+
+  val operatorsSymbols = Set("+", "-", "*", "/",
+    "=", ":=", "<", ">",
+    ">=", "<=", "<>")
+
+  val othersSymbols = Set(":", ".", ",", ";", "(", ")",
+    "[", "]", "{", "}", "..", "^")
+
+  val reservedSymbols = operatorsSymbols union operatorsSymbols
 
   val reservedIdentifiers = Set("AND", "ARRAY", "BEGIN", "CASE", "CONST", "DIV", "DO", "DOWNTO",
     "ELSE", "END", "FILE", "FOR", "FUNCTION", "GOTO", "IF", "IN",

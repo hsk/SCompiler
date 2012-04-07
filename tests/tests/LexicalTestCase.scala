@@ -45,16 +45,41 @@ class LexicalTestCase extends FunSpec with ShouldMatchers {
 
     it("should identify correct tokens between wrong tokens") {
       val input : String = "123WWW 213 1.23"
-      val expected = Array(new Token(TokenType.Undefined, "123"),
-                           new Token(TokenType.Identifier, "WWW"),
-                           new Token(TokenType.Number, "213"),
-                           new Token(TokenType.Number, "1.23"))
+      val expected = Array(
+        new Token(TokenType.Undefined, "123"),
+        new Token(TokenType.Identifier, "WWW"),
+        new Token(TokenType.Number, "213"),
+        new Token(TokenType.Number, "1.23")
+      )
 
       val lexicalValidator = new LexicalValidator()
 
       val result : Array[Token] = lexicalValidator.getTokens(input.iterator).toArray
 
       result should have length (4)
+      result should be (expected)
+    }
+
+    it("should identify multiple statements") {
+      val input : String = "ID1 := 1234;\nid2:=5.1E10-ID1";
+
+      val expected = Array(
+        new Token(TokenType.Identifier, "ID1"),
+        new Token(TokenType.Symbol, ":="),
+        new Token(TokenType.Number, "1234"),
+        new Token(TokenType.Symbol, ";"),
+
+        new Token(TokenType.Identifier, "id2"),
+        new Token(TokenType.Symbol, ":="),
+        new Token(TokenType.Number, "5.1E10"),
+        new Token(TokenType.Symbol, "-"),
+        new Token(TokenType.Identifier, "ID1")
+      )
+
+      val lexicalValidator = new LexicalValidator()
+
+      val result : Array[Token] = lexicalValidator.getTokens(input.iterator).toArray
+
       result should be (expected)
     }
   }

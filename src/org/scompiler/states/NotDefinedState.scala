@@ -3,5 +3,5 @@ import org.scompiler.Tokenizer
 
 
 class NotDefinedState extends State {
-  def nextState(letter : Char, tokenizer: Tokenizer) = this
+  def nextState(letter : Char, tokenizer: Tokenizer) : State = this
 }

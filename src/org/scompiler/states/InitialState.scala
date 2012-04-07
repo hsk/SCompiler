@@ -1,6 +1,6 @@
 package org.scompiler.states
-import org.scompiler.Tokenizer
 import org.scompiler.LexicalConstants._
+import org.scompiler.{TokenType, Tokenizer}
 
 class InitialState extends State {
   def nextState(actualChar: Char, tokenizer: Tokenizer): State = actualChar match {
@@ -15,11 +15,7 @@ class InitialState extends State {
 
     //Verify if there are any symbol that starts with the given character
     case symbol if reservedSymbols exists ( _.startsWith( symbol.toString ) )  => {
-
-      //Get the list of possible symbols of the given character
-      val possibleSymbols = reservedSymbols filter ( _.startsWith(symbol.toString) )
-      // new SymbolStateInit(possibleSymbols)
-      new NotDefinedState
+      new SymbolStateInit(symbol)
     }
 
     //Identifier
@@ -27,6 +23,12 @@ class InitialState extends State {
 
     //Ignore spaces and line-breaks
     case ' ' | '\n' => this
+
+    case ';' => {
+      tokenizer.registerToken(TokenType.Symbol, ";")
+
+      return this
+    }
 
     //Everything else is a error
     case _ => new NotDefinedState

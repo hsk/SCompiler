@@ -7,11 +7,16 @@ class Tokenizer {
   private var tokens = new ArrayBuffer[Token]
   private var currentToken = ""
   
-  def registerLetter(letter: Char) {
-    assert(letter != ' ' && letter != ';')
-    
-    currentToken += letter
-  } 
+  def registerLetter(character: Char) {
+    assert(!(endTokens contains character))
+
+    currentToken += character
+  }
+
+  def registerToken(tokenType: TokenType, wordToken: String) {
+    currentToken = wordToken
+    finishToken(tokenType)
+  }
   
   def finishToken(tokenType: TokenType = TokenType.Identifier) {
     if(!currentToken.isEmpty) {
