@@ -21,7 +21,7 @@ class SymbolStateInit(firstChar: Char) extends State {
       if (reservedSymbols contains completeSymbol) {
         tokenizer.finishToken(TokenType.Symbol)
 
-        tokenizer.registerToken(TokenType.Symbol, ";")
+        tokenizer.registerCompleteToken(TokenType.Symbol, ";")
 
         return new InitialState
       } else {

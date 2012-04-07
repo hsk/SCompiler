@@ -12,17 +12,17 @@ class IdentifierStateInit extends State {
       return new InitialState
     }
 
-    case symbol if operatorsSymbols.exists( _.startsWith(symbol.toString) ) => {
-      tokenizer.finishToken(TokenType.Identifier)
-      return new SymbolStateInit(symbol)
-    }
-
     case ';' => {
-      tokenizer.finishToken(TokenType.Number)
+      tokenizer.finishToken(TokenType.Identifier)
 
-      tokenizer.registerToken(TokenType.Symbol, ";")
+      tokenizer.registerCompleteToken(TokenType.Symbol, ";")
 
       return new InitialState
+    }
+
+    case symbol if reservedSymbols.exists( _.startsWith(symbol.toString) ) => {
+      tokenizer.finishToken(TokenType.Identifier)
+      return new SymbolStateInit(symbol)
     }
 
     case _ => new NotDefinedState

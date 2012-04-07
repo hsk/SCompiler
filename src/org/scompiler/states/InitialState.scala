@@ -4,8 +4,8 @@ import org.scompiler.{TokenType, Tokenizer}
 
 class InitialState extends State {
   def nextState(actualChar: Char, tokenizer: Tokenizer): State = actualChar match {
-    // String - Not Implemented
-    case '\'' => new NotDefinedState
+    // String
+    case '\'' => new StringState
 
     // Numbers
     case digit if numbers contains (digit) => new NumericStateInit(false)
@@ -22,10 +22,10 @@ class InitialState extends State {
     case letter if letters contains letter => new IdentifierStateInit
 
     //Ignore spaces and line-breaks
-    case ' ' | '\n' => this
+    case endLine if endTokens contains endLine => this
 
     case ';' => {
-      tokenizer.registerToken(TokenType.Symbol, ";")
+      tokenizer.registerCompleteToken(TokenType.Symbol, ";")
 
       return this
     }

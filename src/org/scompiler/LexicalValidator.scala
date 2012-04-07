@@ -5,7 +5,7 @@ import org.scompiler.states.NotDefinedState
 import org.scompiler.states.State
 
 class LexicalValidator {
-  def getTokens(input: Iterator[Char]): Iterator[Token] = {
+  def processTokens(input: Iterator[Char]): Iterator[Token] = {
 
     var actualCharacter: Char = '\0'
     var state: State = new InitialState
@@ -22,7 +22,7 @@ class LexicalValidator {
       state = state.nextState(actualCharacter, tokenizer)
 
       if (!state.isInstanceOf[InitialState] && !state.isInstanceOf[NotDefinedState]) {
-        tokenizer.registerLetter(actualCharacter)
+        tokenizer.registerCharacter(actualCharacter)
       }
     }
 

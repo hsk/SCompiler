@@ -8,7 +8,7 @@ class NumericStateInit(initWithSign: Boolean = false) extends State {
   var expectingAnotherNumber = initWithSign
 
   def nextState(letter: Char, tokenizer: Tokenizer): State = letter match {
-    case digit if ('0' to '9').contains(digit) => {
+    case digit if numbers contains digit => {
       expectingAnotherNumber = false
       return this
     }
@@ -17,11 +17,6 @@ class NumericStateInit(initWithSign: Boolean = false) extends State {
       hasPreviousPunctuation = true
       expectingAnotherNumber = true
       return this
-    }
-
-    case symbol if (!expectingAnotherNumber && operatorsSymbols.exists( _.startsWith(symbol.toString) ) ) => {
-      tokenizer.finishToken(TokenType.Number)
-      return new SymbolStateInit(symbol)
     }
 
     case 'E' if (!expectingAnotherNumber) => new NumericStateScientificNotation
@@ -35,12 +30,17 @@ class NumericStateInit(initWithSign: Boolean = false) extends State {
       if (!expectingAnotherNumber) {
         tokenizer.finishToken(TokenType.Number)
 
-        tokenizer.registerToken(TokenType.Symbol, ";")
+        tokenizer.registerCompleteToken(TokenType.Symbol, ";")
 
         return new InitialState
       } else {
         return new NotDefinedState
       }
+    }
+
+    case symbol if (!expectingAnotherNumber && reservedSymbols.exists( _.startsWith(symbol.toString) ) ) => {
+      tokenizer.finishToken(TokenType.Number)
+      return new SymbolStateInit(symbol)
     }
 
     case _ => new NotDefinedState
@@ -62,11 +62,6 @@ class NumericStateScientificNotation extends State {
       return this
     }
 
-    case symbol if (hasPreviousNumber && operatorsSymbols.exists( _.startsWith(symbol.toString) ) ) => {
-      tokenizer.finishToken(TokenType.Number)
-      return new SymbolStateInit(symbol)
-    }
-
     case endTokenSymbol if endTokens contains endTokenSymbol => {
       tokenizer.finishToken(TokenType.Number)
       return new InitialState
@@ -76,12 +71,17 @@ class NumericStateScientificNotation extends State {
       if (hasPreviousNumber) {
         tokenizer.finishToken(TokenType.Number)
 
-        tokenizer.registerToken(TokenType.Symbol, ";")
+        tokenizer.registerCompleteToken(TokenType.Symbol, ";")
 
         return new InitialState
       } else {
         return new NotDefinedState
       }
+    }
+
+    case symbol if (hasPreviousNumber && reservedSymbols.exists( _.startsWith(symbol.toString) ) ) => {
+      tokenizer.finishToken(TokenType.Number)
+      return new SymbolStateInit(symbol)
     }
 
     case _ => new NotDefinedState

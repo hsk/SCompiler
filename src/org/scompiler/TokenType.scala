@@ -8,4 +8,5 @@ object TokenType extends Enumeration {
   val ReservedWord = Value("ReservedWord")
   val Symbol = Value("Symbol")
   val Identifier = Value("Identifier")
+  val String = Value("String")
 }
