@@ -1,12 +1,13 @@
 package org.scompiler.states
 
-import org.scompiler.LexicalConstants._
-import org.scompiler.{TokenType, Tokenizer}
+import org.scompiler.util.TokenBuffer
+import org.scompiler.lexer.LexicalConstants._
+import org.scompiler.lexer.TokenType
 
 class SymbolStateInit(firstChar: Char) extends State {
   var completeSymbol = firstChar.toString
 
-  def nextState(actualChar: Char, tokenizer: Tokenizer) : State = actualChar match {
+  def nextState(actualChar: Char, tokenizer: TokenBuffer) : State = actualChar match {
     case symbol if reservedSymbols exists (_.startsWith(completeSymbol+symbol)) => {
       completeSymbol += symbol
       return this

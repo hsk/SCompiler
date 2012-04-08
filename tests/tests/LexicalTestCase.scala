@@ -3,16 +3,16 @@ package tests
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSpec
-import org.scompiler.LexicalValidator
-import org.scompiler.reservedWordVerify
+import org.scompiler.lexer.{TokenType, Token, LexicalTokenizer}
 import org.scalatest.matchers.ShouldMatchers
-import org.scompiler.Token
-import org.scompiler.TokenType
+import org.scompiler.lexer.LexicalConstants._
 
 @RunWith(classOf[JUnitRunner])
 class LexicalTestCase extends FunSpec with ShouldMatchers {
-  val assertWordIsReserved = (word: String) => assert(reservedWordVerify.verify(word), word + " Should be reserved")
-  val assertWordIsNotReserved = (word: String) => assert(!reservedWordVerify.verify(word), word + " Should not be reserved")
+  private def verifyReservedWord(word: String) : Boolean = reservedWords contains word.toUpperCase
+
+  val assertWordIsReserved = (word: String) => assert(verifyReservedWord(word), word + " Should be reserved")
+  val assertWordIsNotReserved = (word: String) => assert(!verifyReservedWord(word), word + " Should not be reserved")
 
   describe("A lexical component of a compiler") {
 
@@ -36,9 +36,9 @@ class LexicalTestCase extends FunSpec with ShouldMatchers {
     it("should identify numbers") {
       val input: String = "1234.123 123 -123 1.0E-1"
       val expected: Array[Token] = input.split(" ").map(num => new Token(TokenType.Number, num))
-      val lexicalValidator = new LexicalValidator()
+      val lexicalTokenizer = new LexicalTokenizer(input.iterator)
 
-      val result: Array[Token] = lexicalValidator.processTokens(input.iterator).toArray
+      val result: Array[Token] = lexicalTokenizer.toArray
 
       result should have length (4)
       result should be(expected)
@@ -53,9 +53,9 @@ class LexicalTestCase extends FunSpec with ShouldMatchers {
         new Token(TokenType.Number, "1.23")
       )
 
-      val lexicalValidator = new LexicalValidator()
+      val lexicalTokenizer = new LexicalTokenizer(input.iterator)
 
-      val result: Array[Token] = lexicalValidator.processTokens(input.iterator).toArray
+      val result: Array[Token] = lexicalTokenizer.toArray
 
       result should have length (4)
       result should be(expected)
@@ -78,9 +78,9 @@ class LexicalTestCase extends FunSpec with ShouldMatchers {
         new Token(TokenType.Symbol, ";")
       )
 
-      val lexicalValidator = new LexicalValidator()
+      val lexicalTokenizer = new LexicalTokenizer(input.iterator)
 
-      val result: Array[Token] = lexicalValidator.processTokens(input.iterator).toArray
+      val result: Array[Token] = lexicalTokenizer.toArray
 
       result should be(expected)
     }
@@ -103,9 +103,9 @@ class LexicalTestCase extends FunSpec with ShouldMatchers {
         new Token(TokenType.Symbol, ";")
       )
 
-      val lexicalValidator = new LexicalValidator()
+      val lexicalTokenizer = new LexicalTokenizer(input.iterator)
 
-      val result: Array[Token] = lexicalValidator.processTokens(input.iterator).toArray
+      val result: Array[Token] = lexicalTokenizer.toArray
 
       result should be(expected)
     }
@@ -121,9 +121,9 @@ class LexicalTestCase extends FunSpec with ShouldMatchers {
         new Token(TokenType.Symbol, ";")
       )
 
-      val lexicalValidator = new LexicalValidator()
+      val lexicalTokenizer = new LexicalTokenizer(input.iterator)
 
-      val result: Array[Token] = lexicalValidator.processTokens(input.iterator).toArray
+      val result: Array[Token] = lexicalTokenizer.toArray
 
       result should be(expected)
     }
@@ -145,9 +145,9 @@ class LexicalTestCase extends FunSpec with ShouldMatchers {
         new Token(TokenType.Symbol, ";")
       )
 
-      val lexicalValidator = new LexicalValidator()
+      val lexicalTokenizer = new LexicalTokenizer(input.iterator)
 
-      val result: Array[Token] = lexicalValidator.processTokens(input.iterator).toArray
+      val result: Array[Token] = lexicalTokenizer.toArray
 
       result should be(expected)
     }

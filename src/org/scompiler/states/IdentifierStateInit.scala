@@ -1,10 +1,11 @@
 package org.scompiler.states
 
-import org.scompiler.LexicalConstants._
-import org.scompiler.{TokenType, Tokenizer}
+import org.scompiler.lexer.LexicalConstants._
+import org.scompiler.util.TokenBuffer
+import org.scompiler.lexer.TokenType
 
 class IdentifierStateInit extends State {
-  def nextState(actualChar: Char, tokenizer: Tokenizer) : State = actualChar match {
+  def nextState(actualChar: Char, tokenizer: TokenBuffer) : State = actualChar match {
     case letter if alphaNumeric contains letter => this
 
     case endTokenSymbol if endTokens contains endTokenSymbol => {

@@ -1,13 +1,14 @@
 package org.scompiler.states
-import org.scompiler.Tokenizer
-import org.scompiler.TokenType
-import org.scompiler.LexicalConstants._
+
+import org.scompiler.util.TokenBuffer
+import org.scompiler.lexer.LexicalConstants._
+import org.scompiler.lexer.TokenType
 
 class NumericStateInit(initWithSign: Boolean = false) extends State {
   var hasPreviousPunctuation = false
   var expectingAnotherNumber = initWithSign
 
-  def nextState(letter: Char, tokenizer: Tokenizer): State = letter match {
+  def nextState(letter: Char, tokenizer: TokenBuffer): State = letter match {
     case digit if numbers contains digit => {
       expectingAnotherNumber = false
       return this
@@ -51,7 +52,7 @@ class NumericStateScientificNotation extends State {
   var hasPreviousNumber: Boolean = false
   var hasSign: Boolean = false
 
-  def nextState(letter: Char, tokenizer: Tokenizer): State = letter match {
+  def nextState(letter: Char, tokenizer: TokenBuffer): State = letter match {
     case digit if ('0' to '9').contains(digit) => {
       hasPreviousNumber = true
       return this

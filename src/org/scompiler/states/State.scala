@@ -1,6 +1,7 @@
 package org.scompiler.states
-import org.scompiler.Tokenizer
+
+import org.scompiler.util.TokenBuffer
 
 abstract class State{
-  def nextState(actualChar: Char, tokenizer: Tokenizer): State
+  def nextState(actualChar: Char, tokenizer: TokenBuffer): State
 }

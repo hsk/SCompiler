@@ -1,4 +1,4 @@
-package org.scompiler
+package org.scompiler.lexer
 
 import collection.immutable.Set
 

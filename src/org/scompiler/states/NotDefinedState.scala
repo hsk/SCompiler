@@ -1,7 +1,8 @@
 package org.scompiler.states
-import org.scompiler.Tokenizer
+
+import org.scompiler.util.TokenBuffer
 
 
 class NotDefinedState extends State {
-  def nextState(letter : Char, tokenizer: Tokenizer) : State = this
+  def nextState(letter : Char, tokenizer: TokenBuffer) : State = this
 }

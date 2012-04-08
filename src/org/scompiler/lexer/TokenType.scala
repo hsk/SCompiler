@@ -1,4 +1,4 @@
-package org.scompiler
+package org.scompiler.lexer
 
 object TokenType extends Enumeration {
   type TokenType = Value

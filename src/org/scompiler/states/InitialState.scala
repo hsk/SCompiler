@@ -1,9 +1,11 @@
 package org.scompiler.states
-import org.scompiler.LexicalConstants._
-import org.scompiler.{TokenType, Tokenizer}
+
+import org.scompiler.util.TokenBuffer
+import org.scompiler.lexer.LexicalConstants._
+import org.scompiler.lexer.TokenType
 
 class InitialState extends State {
-  def nextState(actualChar: Char, tokenizer: Tokenizer): State = actualChar match {
+  def nextState(actualChar: Char, tokenizer: TokenBuffer): State = actualChar match {
     // String
     case '\'' => new StringState
 
@@ -14,7 +16,7 @@ class InitialState extends State {
     case '-' => new NumericStateInit(true)
 
     //Verify if there are any symbol that starts with the given character
-    case symbol if reservedSymbols exists ( _.startsWith( symbol.toString ) )  => {
+    case symbol if reservedSymbols exists (_.startsWith(symbol.toString)) => {
       new SymbolStateInit(symbol)
     }
 
