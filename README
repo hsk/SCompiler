@@ -1,0 +1,11 @@
+O Compilador é escrito na linguagem Scala.
+
+Existem dois arquivos .sh. Um para a instalação (install.sh) e outro para rodar o programa (run.sh).
+
+O arquivo run.sh executa o .jar do programa e roda o install (caso as dependências ainda não tenham sido instaladas).
+
+Caso o run.sh não encontre o arquivo .jar, ele baixará o Maven, que compila o projeto e cria este arquivo.
+
+* Para recompilar o programa manualmente é necessário ter o maven instalado e digitar o comando mvn install (na root do projeto). 
+
+* Para executar o programa deve-se rodar o jar (com o comando scala target/SCompiler-0.1-ALPHA.jar)
