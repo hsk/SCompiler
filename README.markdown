@@ -10,9 +10,9 @@ Um para a instalação (**install.sh**), outro para compilação(**compile.sh**)
 
 
 #### run.sh
-O arquivo run.sh executa o .jar do programa, caso as dependências ainda não tenham sido instaladas, é executado automaticamente o arquivo **install.sh** e/ou **compile.sh**
+O arquivo run.sh executa o .jar do programa. Caso as dependências ainda não tenham sido instaladas, é executado automaticamente o arquivo **install.sh** e/ou **compile.sh**
 
-A entrada é do teclado, mas pode-se utilizar: ./run < arquivo.pas
+A entrada é do teclado, mas pode-se utilizar: ./run.sh < arquivo.pas
 
 
 #### install.sh
