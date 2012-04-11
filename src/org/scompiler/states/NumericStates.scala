@@ -57,7 +57,14 @@ class NumericStateInit extends State {
       return new SymbolStateInit(symbol)
     }
 
-    case _ => new InvalidTokenState
+    case _ => {
+      if (!expectingAnotherNumber) {
+        doFinishToken(tokenizer)
+        return new NotDefinedState
+      } else {
+        return new InvalidTokenState
+      }
+    }
   }
 }
 
@@ -107,6 +114,13 @@ class NumericStateScientificNotation extends State {
       return new SymbolStateInit(symbol)
     }
 
-    case _ => new InvalidTokenState
+    case _ => {
+      if (hasPreviousNumber) {
+        tokenizer.finishToken(TokenType.ScientificNotationNumber)
+        return new NotDefinedState
+      } else {
+        return new InvalidTokenState
+      }
+    }
   }
 }

@@ -1,15 +1,16 @@
 #!/bin/bash
 
-scala_link='http://www.scala-lang.org/downloads/distrib/files/scala-2.9.1-1.tgz'
+apache_maven_link='http://linorg.usp.br/apache/maven/binaries/apache-maven-3.0.4-bin.tar.gz'
 
-if [ ! -f scala-2.9.1-1.tgz ]; then
-	if [ `uname` = "Darwin" ]; then
-		curl -O $scala_link
-	else
-		wget $scala_link
-	fi
-fi
+if [ ! -d maven ]; then
+    rm apache-maven-3.0.4-bin.tar.gz
+    if [ `uname` = "Darwin" ]; then
+        curl -O $apache_maven_link
+    else
+        wget $apache_maven_link
+    fi
 
-if [ ! -d scala-2.9.1-1 ]; then
-	tar -xf scala-2.9.1-1.tgz
+    tar -xf apache-maven-3.0.4-bin.tar.gz
+    mv apache-maven-3.0.4 maven
 fi
+        
