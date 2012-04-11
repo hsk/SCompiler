@@ -9,5 +9,5 @@ class Token(val tokenType: TokenType, val tokenName: String) {
     case _ => false
   }
 
-  override def toString: String = tokenName + " (" + tokenType.toString + ")"
+  override def toString: String = "(" + tokenType.toString + ", " + tokenName + " )"
 }

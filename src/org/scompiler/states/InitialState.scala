@@ -6,14 +6,13 @@ import org.scompiler.lexer.TokenType
 
 class InitialState extends State {
   def nextState(actualChar: Char, tokenizer: TokenBuffer): State = actualChar match {
+    case '{' => new CommentaryState
+
     // String
     case '\'' => new StringState
 
     // Numbers
-    case digit if numbers contains (digit) => new NumericStateInit(false)
-
-    // Possible Number(or symbol) - Partial implemented(only numeric behaviour)
-    case '-' => new NumericStateInit(true)
+    case digit if numbers contains (digit) => new NumericStateInit
 
     //Verify if there are any symbol that starts with the given character
     case symbol if reservedSymbols exists (_.startsWith(symbol.toString)) => {
@@ -27,12 +26,12 @@ class InitialState extends State {
     case endLine if endTokens contains endLine => this
 
     case ';' => {
-      tokenizer.registerCompleteToken(TokenType.Symbol, ";")
+      tokenizer.registerCompleteToken(TokenType.SemiColon, ";")
 
       return this
     }
 
     //Everything else is a error
-    case _ => new NotDefinedState
+    case _ => new InvalidTokenState
   }
 }

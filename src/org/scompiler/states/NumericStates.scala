@@ -4,9 +4,21 @@ import org.scompiler.util.TokenBuffer
 import org.scompiler.lexer.LexicalConstants._
 import org.scompiler.lexer.TokenType
 
-class NumericStateInit(initWithSign: Boolean = false) extends State {
+class NumericStateInit extends State {
   var hasPreviousPunctuation = false
-  var expectingAnotherNumber = initWithSign
+  var expectingAnotherNumber = false
+
+  private def doFinishToken(tokenizer: TokenBuffer) {
+    if(!expectingAnotherNumber) {
+      if (hasPreviousPunctuation) {
+        tokenizer.finishToken(TokenType.RealNumber)
+      } else {
+        tokenizer.finishToken(TokenType.NaturalNumber)
+      }
+    } else {
+      tokenizer.finishToken(TokenType.Undefined)
+    }
+  }
 
   def nextState(letter: Char, tokenizer: TokenBuffer): State = letter match {
     case digit if numbers contains digit => {
@@ -22,16 +34,17 @@ class NumericStateInit(initWithSign: Boolean = false) extends State {
 
     case 'E' if (!expectingAnotherNumber) => new NumericStateScientificNotation
 
-    case endTokenSymbol if (!expectingAnotherNumber && endTokens.contains(endTokenSymbol)) => {
-      tokenizer.finishToken(TokenType.Number)
+    case endTokenSymbol if endTokens contains endTokenSymbol => {
+      doFinishToken(tokenizer)
+
       return new InitialState
     }
 
     case ';' => {
       if (!expectingAnotherNumber) {
-        tokenizer.finishToken(TokenType.Number)
+        doFinishToken(tokenizer)
 
-        tokenizer.registerCompleteToken(TokenType.Symbol, ";")
+        tokenizer.registerCompleteToken(TokenType.SemiColon, ";")
 
         return new InitialState
       } else {
@@ -40,11 +53,11 @@ class NumericStateInit(initWithSign: Boolean = false) extends State {
     }
 
     case symbol if (!expectingAnotherNumber && reservedSymbols.exists( _.startsWith(symbol.toString) ) ) => {
-      tokenizer.finishToken(TokenType.Number)
+      doFinishToken(tokenizer)
       return new SymbolStateInit(symbol)
     }
 
-    case _ => new NotDefinedState
+    case _ => new InvalidTokenState
   }
 }
 
@@ -58,21 +71,30 @@ class NumericStateScientificNotation extends State {
       return this
     }
 
+    case '+' if (!hasSign && !hasPreviousNumber) => {
+      hasSign = true
+      return this
+    }
+
     case '-' if (!hasSign && !hasPreviousNumber) => {
       hasSign = true
       return this
     }
 
     case endTokenSymbol if endTokens contains endTokenSymbol => {
-      tokenizer.finishToken(TokenType.Number)
+      if(hasPreviousNumber) {
+        tokenizer.finishToken(TokenType.ScientificNotationNumber)
+      } else {
+        tokenizer.finishToken(TokenType.Undefined)
+      }
       return new InitialState
     }
 
     case ';' => {
       if (hasPreviousNumber) {
-        tokenizer.finishToken(TokenType.Number)
+        tokenizer.finishToken(TokenType.ScientificNotationNumber)
 
-        tokenizer.registerCompleteToken(TokenType.Symbol, ";")
+        tokenizer.registerCompleteToken(TokenType.SemiColon, ";")
 
         return new InitialState
       } else {
@@ -81,10 +103,10 @@ class NumericStateScientificNotation extends State {
     }
 
     case symbol if (hasPreviousNumber && reservedSymbols.exists( _.startsWith(symbol.toString) ) ) => {
-      tokenizer.finishToken(TokenType.Number)
+      tokenizer.finishToken(TokenType.ScientificNotationNumber)
       return new SymbolStateInit(symbol)
     }
 
-    case _ => new NotDefinedState
+    case _ => new InvalidTokenState
   }
 }

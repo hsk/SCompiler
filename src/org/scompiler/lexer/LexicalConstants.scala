@@ -1,6 +1,7 @@
 package org.scompiler.lexer
 
 import collection.immutable.Set
+import collection.immutable.HashMap
 
 object LexicalConstants {
   val letters = ('a' to 'z') union ('A' to 'Z')
@@ -28,4 +29,18 @@ object LexicalConstants {
     "UNTIL", "VAR", "WHILE", "WITH", "USES")
 
   val reservedWords = reservedSymbols union reservedIdentifiers
+
+  val symbolsTokenType = HashMap[String, TokenType.TokenType](
+    "+" -> TokenType.AddOperator,"-" -> TokenType.MinusOperator,
+    "*" -> TokenType.MultiplicationOperator, "/" -> TokenType.DivisionOperator,
+    "=" -> TokenType.EqualsOperator, ":=" -> TokenType.AttributionOperator,
+    "<" -> TokenType.SmallerThenOperator, "<=" -> TokenType.GreaterEqualsThenOperator,
+    ">" -> TokenType.GreaterThenOperator, ">=" -> TokenType.GreaterEqualsThenOperator,
+    "<>" -> TokenType.NotEqualsOperator, ":" -> TokenType.Colon,
+    "." -> TokenType.Dot, "," -> TokenType.Comma, ";" -> TokenType.SemiColon,
+    "(" -> TokenType.ParenthesisOpen, ")" -> TokenType.ParenthesisClose,
+    "[" -> TokenType.BracketOpen, "]" -> TokenType.BracketClose,
+    "{" -> TokenType.BraceOpen, "}" -> TokenType.BraceClose,
+    ".." -> TokenType.Range, "^" -> TokenType.Pointer
+  )
 }

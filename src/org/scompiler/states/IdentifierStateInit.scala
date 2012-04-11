@@ -16,7 +16,7 @@ class IdentifierStateInit extends State {
     case ';' => {
       tokenizer.finishToken(TokenType.Identifier)
 
-      tokenizer.registerCompleteToken(TokenType.Symbol, ";")
+      tokenizer.registerCompleteToken(TokenType.SemiColon, ";")
 
       return new InitialState
     }
@@ -26,6 +26,6 @@ class IdentifierStateInit extends State {
       return new SymbolStateInit(symbol)
     }
 
-    case _ => new NotDefinedState
+    case _ => new InvalidTokenState
   }
 }
