@@ -21,4 +21,4 @@ if [ ! -f $scompiler_jar_dir ]; then
 fi
 
 export PATH=$PATH:$PWD/scala-2.9.1-1/bin
-scala target/$scompiler_jar_dir
+scala $scompiler_jar_dir
