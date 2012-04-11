@@ -75,12 +75,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3</version>
                 <configuration>
                     <archive>
                         <manifest>
                             <mainClass>org.scompiler.MainLexer</mainClass>
                             <packageName>org.scompiler</packageName>
                             <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
                         </manifest>
                         <manifestEntries>
                             <mode>development</mode>

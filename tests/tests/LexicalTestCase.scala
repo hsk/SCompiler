@@ -52,7 +52,8 @@ class LexicalTestCase extends FunSpec with ShouldMatchers {
     it("should identify correct tokens between wrong tokens") {
       val input: String = "123WWW 213 1.23"
       val expected = Array(
-        new Token(TokenType.Undefined, "123WWW"),
+        new Token(TokenType.NaturalNumber, "123"),
+        new Token(TokenType.Identifier, "WWW"),
         new Token(TokenType.NaturalNumber, "213"),
         new Token(TokenType.RealNumber, "1.23")
       )
@@ -61,7 +62,7 @@ class LexicalTestCase extends FunSpec with ShouldMatchers {
 
       val result: Array[Token] = lexicalTokenizer.toArray
 
-      result should have length (3)
+      result should have length (4)
       result should be(expected)
     }
 
