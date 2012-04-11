@@ -26,6 +26,10 @@ class IdentifierStateInit extends State {
       return new SymbolStateInit(symbol)
     }
 
-    case _ => new InvalidTokenState
+    case _ => {
+      tokenizer.finishToken(TokenType.Identifier)
+
+      return new InvalidTokenState
+    }
   }
 }

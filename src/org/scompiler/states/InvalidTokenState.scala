@@ -5,6 +5,7 @@ import org.scompiler.lexer.LexicalConstants._
 import org.scompiler.lexer.TokenType
 
 class InvalidTokenState extends State {
+  val falseInitState = new InitialState
   def nextState(actualChar: Char, tokenizer: TokenBuffer) : State = actualChar match {
     case endLine if endTokens contains endLine =>  {
       tokenizer.finishToken(TokenType.Undefined)
@@ -17,6 +18,14 @@ class InvalidTokenState extends State {
 
       return new InitialState
     }
-    case _ => this
+    case _ =>  {
+      val nextState = falseInitState.nextState(actualChar, tokenizer)
+      if (nextState.isInstanceOf[InvalidTokenState]) {
+        return this
+      } else {
+        tokenizer.finishToken(TokenType.Undefined)
+        return nextState
+      }
+    }
   }
 }

@@ -32,7 +32,7 @@ class NumericStateInit extends State {
       return this
     }
 
-    case 'E' if (!expectingAnotherNumber) => new NumericStateScientificNotation
+    case 'E' | 'e' if (!expectingAnotherNumber) => new NumericStateScientificNotation
 
     case endTokenSymbol if endTokens contains endTokenSymbol => {
       doFinishToken(tokenizer)
