@@ -1,4 +1,4 @@
-package org.scompiler.states
+package org.scompiler.lexer.states
 
 import org.scompiler.util.TokenBuffer
 import org.scompiler.lexer.LexicalConstants._
@@ -8,7 +8,7 @@ import org.scompiler.lexer.TokenType._
 class SymbolStateInit(firstChar: Char) extends State {
   var completeSymbol = firstChar.toString
 
-  def getTokenType(): TokenType = {
+  def tokenType: TokenType = {
     val token = symbolsTokenType.get(completeSymbol)
     if (token.isEmpty) {
       return TokenType.Symbol
@@ -17,22 +17,22 @@ class SymbolStateInit(firstChar: Char) extends State {
     }
   }
 
-  def nextState(actualChar: Char, tokenizer: TokenBuffer) : State = actualChar match {
+  def nextState(actualChar: Char, tokenBuffer: TokenBuffer) : State = actualChar match {
     case symbol if reservedSymbols exists (_.startsWith(completeSymbol+symbol)) => {
       completeSymbol += symbol
       return this
     }
 
     case endTokenSymbol if endTokens contains endTokenSymbol => {
-      tokenizer.finishToken(getTokenType())
+      tokenBuffer.finishToken(tokenType)
       return new InitialState
     }
 
     case ';' => {
       if (reservedSymbols contains completeSymbol) {
-        tokenizer.finishToken(getTokenType())
+        tokenBuffer.finishToken(tokenType)
 
-        tokenizer.registerCompleteToken(TokenType.SemiColon, ";")
+        tokenBuffer.registerCompleteToken(TokenType.SemiColon, ";")
 
         return new InitialState
       } else {
@@ -42,11 +42,11 @@ class SymbolStateInit(firstChar: Char) extends State {
 
     case _ => {
       if (reservedSymbols contains completeSymbol) {
-        tokenizer.finishToken(getTokenType())
+        tokenBuffer.finishToken(tokenType)
 
         //force processing at InitState
         val initState = new InitialState
-        return initState.nextState(actualChar, tokenizer)
+        return initState.nextState(actualChar, tokenBuffer)
       } else {
         return new NotDefinedState
       }

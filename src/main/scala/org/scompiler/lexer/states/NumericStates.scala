@@ -1,4 +1,4 @@
-package org.scompiler.states
+package org.scompiler.lexer.states
 
 import org.scompiler.util.TokenBuffer
 import org.scompiler.lexer.LexicalConstants._
@@ -8,19 +8,19 @@ class NumericStateInit extends State {
   var hasPreviousPunctuation = false
   var expectingAnotherNumber = false
 
-  private def doFinishToken(tokenizer: TokenBuffer) {
+  private def doFinishToken(tokenBuffer: TokenBuffer) {
     if(!expectingAnotherNumber) {
       if (hasPreviousPunctuation) {
-        tokenizer.finishToken(TokenType.RealNumber)
+        tokenBuffer.finishToken(TokenType.RealNumber)
       } else {
-        tokenizer.finishToken(TokenType.NaturalNumber)
+        tokenBuffer.finishToken(TokenType.NaturalNumber)
       }
     } else {
-      tokenizer.finishToken(TokenType.Undefined)
+      tokenBuffer.finishToken(TokenType.Undefined)
     }
   }
 
-  def nextState(letter: Char, tokenizer: TokenBuffer): State = letter match {
+  def nextState(letter: Char, tokenBuffer: TokenBuffer): State = letter match {
     case digit if numbers contains digit => {
       expectingAnotherNumber = false
       return this
@@ -32,19 +32,19 @@ class NumericStateInit extends State {
       return this
     }
 
-    case 'E' if (!expectingAnotherNumber) => new NumericStateScientificNotation
+    case 'E' | 'e' if (!expectingAnotherNumber) => new NumericStateScientificNotation
 
     case endTokenSymbol if endTokens contains endTokenSymbol => {
-      doFinishToken(tokenizer)
+      doFinishToken(tokenBuffer)
 
       return new InitialState
     }
 
     case ';' => {
       if (!expectingAnotherNumber) {
-        doFinishToken(tokenizer)
+        doFinishToken(tokenBuffer)
 
-        tokenizer.registerCompleteToken(TokenType.SemiColon, ";")
+        tokenBuffer.registerCompleteToken(TokenType.SemiColon, ";")
 
         return new InitialState
       } else {
@@ -53,13 +53,13 @@ class NumericStateInit extends State {
     }
 
     case symbol if (!expectingAnotherNumber && reservedSymbols.exists( _.startsWith(symbol.toString) ) ) => {
-      doFinishToken(tokenizer)
+      doFinishToken(tokenBuffer)
       return new SymbolStateInit(symbol)
     }
 
     case _ => {
       if (!expectingAnotherNumber) {
-        doFinishToken(tokenizer)
+        doFinishToken(tokenBuffer)
         return new NotDefinedState
       } else {
         return new InvalidTokenState
@@ -72,7 +72,7 @@ class NumericStateScientificNotation extends State {
   var hasPreviousNumber: Boolean = false
   var hasSign: Boolean = false
 
-  def nextState(letter: Char, tokenizer: TokenBuffer): State = letter match {
+  def nextState(letter: Char, tokenBuffer: TokenBuffer): State = letter match {
     case digit if ('0' to '9').contains(digit) => {
       hasPreviousNumber = true
       return this
@@ -90,18 +90,18 @@ class NumericStateScientificNotation extends State {
 
     case endTokenSymbol if endTokens contains endTokenSymbol => {
       if(hasPreviousNumber) {
-        tokenizer.finishToken(TokenType.ScientificNotationNumber)
+        tokenBuffer.finishToken(TokenType.ScientificNotationNumber)
       } else {
-        tokenizer.finishToken(TokenType.Undefined)
+        tokenBuffer.finishToken(TokenType.Undefined)
       }
       return new InitialState
     }
 
     case ';' => {
       if (hasPreviousNumber) {
-        tokenizer.finishToken(TokenType.ScientificNotationNumber)
+        tokenBuffer.finishToken(TokenType.ScientificNotationNumber)
 
-        tokenizer.registerCompleteToken(TokenType.SemiColon, ";")
+        tokenBuffer.registerCompleteToken(TokenType.SemiColon, ";")
 
         return new InitialState
       } else {
@@ -110,13 +110,13 @@ class NumericStateScientificNotation extends State {
     }
 
     case symbol if (hasPreviousNumber && reservedSymbols.exists( _.startsWith(symbol.toString) ) ) => {
-      tokenizer.finishToken(TokenType.ScientificNotationNumber)
+      tokenBuffer.finishToken(TokenType.ScientificNotationNumber)
       return new SymbolStateInit(symbol)
     }
 
     case _ => {
       if (hasPreviousNumber) {
-        tokenizer.finishToken(TokenType.ScientificNotationNumber)
+        tokenBuffer.finishToken(TokenType.ScientificNotationNumber)
         return new NotDefinedState
       } else {
         return new InvalidTokenState

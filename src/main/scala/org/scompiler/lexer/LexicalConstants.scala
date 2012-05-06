@@ -18,7 +18,7 @@ object LexicalConstants {
     ">=", "<=", "<>")
 
   val othersSymbols = Set(":", ".", ",", ";", "(", ")",
-    "[", "]", "{", "}", "..", "^")
+    "[", "]", "{", "}", "", "^")
 
   val reservedSymbols = operatorsSymbols union othersSymbols
 
@@ -41,6 +41,6 @@ object LexicalConstants {
     "(" -> TokenType.ParenthesisOpen, ")" -> TokenType.ParenthesisClose,
     "[" -> TokenType.BracketOpen, "]" -> TokenType.BracketClose,
     "{" -> TokenType.BraceOpen, "}" -> TokenType.BraceClose,
-    ".." -> TokenType.Range, "^" -> TokenType.Pointer
+    "" -> TokenType.Range, "^" -> TokenType.Pointer
   )
 }

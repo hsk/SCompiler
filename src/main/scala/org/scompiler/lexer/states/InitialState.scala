@@ -1,11 +1,11 @@
-package org.scompiler.states
+package org.scompiler.lexer.states
 
 import org.scompiler.util.TokenBuffer
 import org.scompiler.lexer.LexicalConstants._
 import org.scompiler.lexer.TokenType
 
 class InitialState extends State {
-  def nextState(actualChar: Char, tokenizer: TokenBuffer): State = actualChar match {
+  def nextState(actualChar: Char, tokenBuffer: TokenBuffer): State = actualChar match {
     case '{' => new CommentaryState
 
     // String
@@ -26,7 +26,7 @@ class InitialState extends State {
     case endLine if endTokens contains endLine => this
 
     case ';' => {
-      tokenizer.registerCompleteToken(TokenType.SemiColon, ";")
+      tokenBuffer.registerCompleteToken(TokenType.SemiColon, ";")
 
       return this
     }

@@ -1,11 +1,11 @@
-package org.scompiler.states
+package org.scompiler.lexer.states
 
 import org.scompiler.util.TokenBuffer
 import org.scompiler.lexer.LexicalConstants._
 import org.scompiler.lexer.TokenType
 
 class StringState extends State {
-  def nextState(actualChar: Char, tokenizer: TokenBuffer) : State = actualChar match {
+  def nextState(actualChar: Char, tokenBuffer: TokenBuffer) : State = actualChar match {
     case '\'' => new StringEscapeState
     case endLine if endLineTokens contains endLine => new NotDefinedState
     case _ => this
@@ -13,13 +13,13 @@ class StringState extends State {
 }
 
 class StringEscapeState extends State {
-  def nextState(actualChar: Char, tokenizer: TokenBuffer) : State = actualChar match {
+  def nextState(actualChar: Char, tokenBuffer: TokenBuffer) : State = actualChar match {
     case '\'' => new StringState
     case _ => {
-      tokenizer.finishToken(TokenType.String)
+      tokenBuffer.finishToken(TokenType.String)
 
       val initialState = new InitialState
-      return initialState.nextState(actualChar, tokenizer)
+      return initialState.nextState(actualChar, tokenBuffer)
     }
   }
 }

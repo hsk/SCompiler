@@ -1,4 +1,4 @@
-package tests
+package org.scompiler.tests
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -9,7 +9,7 @@ import org.scompiler.lexer.LexicalConstants._
 
 @RunWith(classOf[JUnitRunner])
 class LexicalTestCase extends FunSpec with ShouldMatchers {
-  private def verifyReservedWord(word: String) : Boolean = reservedWords contains word.toUpperCase
+  private def verifyReservedWord(word: String): Boolean = reservedWords contains word.toUpperCase
 
   val assertWordIsReserved = (word: String) => assert(verifyReservedWord(word), word + " Should be reserved")
   val assertWordIsNotReserved = (word: String) => assert(!verifyReservedWord(word), word + " Should not be reserved")

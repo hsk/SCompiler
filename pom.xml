@@ -40,8 +40,8 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>src</sourceDirectory>
-        <testSourceDirectory>tests</testSourceDirectory>
+        <sourceDirectory>src/main/scala</sourceDirectory>
+        <testSourceDirectory>src/tests</testSourceDirectory>
 
         <plugins>
             <plugin>
@@ -56,8 +56,8 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <sourceDir>src</sourceDir>
-                    <testSourceDir>tests</testSourceDir>
+                    <sourceDir>src/main/scala</sourceDir>
+                    <testSourceDir>src/tests</testSourceDir>
                     <jvmArgs>
                         <jvmArg>-Xms64m</jvmArg>
                         <jvmArg>-Xmx1024m</jvmArg>
