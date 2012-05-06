@@ -1,9 +1,8 @@
 package org.scompiler.lexer
 
-import org.scompiler.states.InitialState
-import org.scompiler.states.NotDefinedState
-import org.scompiler.states.State
+import org.scompiler.lexer.states._
 import org.scompiler.util.TokenBuffer
+import states.InitialState
 
 class LexicalTokenizer(input: Iterator[Char]) extends Iterator[Token] {
 
