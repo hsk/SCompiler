@@ -4,25 +4,29 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
-import org.scompiler.syntactic.NonTerminalNode._
+import org.scompiler.syntactic.GrammarGraph
+import org.scompiler.lexer.TokenType
 import org.scompiler.lexer.TokenType._
-import org.scompiler.syntactic.NonTerminalNode
 
 
 @RunWith(classOf[JUnitRunner])
 class SyntacticTestCase extends FunSpec with ShouldMatchers {
   describe("A Syntatic component of a compiler") {
 
-    it("shoud be able to build a simple grammar tree") {
+    it("shoud be able to build a simple grammar graph") {
 
-      val variable = Identifier
-      val numbers = NaturalNumber | RealNumber | ScientificNotationNumber
-      val operation =  numbers ~ ( AddOperator | MinusOperator) ~ numbers
-      val statement = (variable ~ AttributionOperator ~ operation ~ SemiColon)+
+      val grammarGraph = new GrammarGraph {
 
-      numbers.toString should be("(NaturalNumber | RealNumber | ScientificNotationNumber)")
-      operation.toString should be("((NaturalNumber | RealNumber | ScientificNotationNumber) ~ (AddOperator | MinusOperator) ~ (NaturalNumber | RealNumber | ScientificNotationNumber))")
-      statement.toString should be("(Identifier ~ AttributionOperator ~ ((NaturalNumber | RealNumber | ScientificNotationNumber) ~ (AddOperator | MinusOperator) ~ (NaturalNumber | RealNumber | ScientificNotationNumber)) ~ SemiColon)+")
+        'variable ~> { Identifier }
+        'numbers ~> { NaturalNumber | RealNumber | ScientificNotationNumber }
+        'operation ~> { 'numbers ~ (AddOperator | MinusOperator) ~ 'numbers }
+        'statement ~> { ('variable ~ AttributionOperator ~ 'operation ~ SemiColon)+ }
+
+      }
+
+      grammarGraph.getNonTerminal('numbers).get.toString should be("(NaturalNumber | RealNumber | ScientificNotationNumber)")
+      grammarGraph.getNonTerminal('operation).get.toString should be("('numbers ~ (AddOperator | MinusOperator) ~ 'numbers)")
+      grammarGraph.getNonTerminal('statement).get.toString should be("('variable ~ AttributionOperator ~ 'operation ~ SemiColon)+")
     }
   }
 }
