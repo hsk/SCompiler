@@ -3,7 +3,7 @@ package org.scompiler.syntactic
 import org.scompiler.lexer.TokenType._
 import collection.mutable.HashMap
 
-abstract class GrammarGraph {
+trait GrammarGraph {
   private val terminals = new HashMap[TokenType, TerminalNode]
   private val nonTerminals = new HashMap[Symbol, NonTerminalNode]
 

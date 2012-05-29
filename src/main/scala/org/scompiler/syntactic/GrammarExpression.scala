@@ -9,8 +9,8 @@ object GrammarExpression {
   val OR_IDENTIFIER = "|"
   val UNDEFINED_IDENTIFIER = ""
 
-  val ONE_TO_MANY ="+"
-  val ZERO_TO_MANY = "*"
+  val ONE_OR_MANY ="+"
+  val ZERO_OR_MANY = "*"
   val OPTIONAL = "!"
   val ONLY_ONE = ""
 }
@@ -55,12 +55,12 @@ class GrammarExpression(graph: GrammarGraph, initialNode: Option[Node]) extends 
   }
 
   def + : GrammarExpression = {
-    cardinality = ONE_TO_MANY
+    cardinality = ONE_OR_MANY
     this
   }
 
   def * : GrammarExpression = {
-    cardinality = ZERO_TO_MANY
+    cardinality = ZERO_OR_MANY
     this
   }
 
