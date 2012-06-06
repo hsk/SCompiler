@@ -2,7 +2,7 @@ package org.scompiler.syntactic
 
 import org.scompiler.lexer.TokenType._
 import collection.mutable.ArrayBuffer
-import org.scompiler.lexer.Token
+import org.scompiler.lexer.{LexicalConstants, Token}
 
 object GrammarExpression {
   val SEQ_IDENTIFIER = "~"
@@ -19,13 +19,20 @@ import GrammarExpression._
 
 class GrammarExpression(graph: GrammarGraph, initialNode: Option[Node]) extends Node {
 
+  private var locked = false;
+  private var semanticHint: Int = 0;
+
+  def lock() {
+   locked = true;
+  }
+
   def parseToken(token: Token) {}
 
   def this(graph: GrammarGraph) = this(graph, None)
 
-  private var listOfNodes = new ArrayBuffer[Node]
+  private var listOfNodes = new ArrayBuffer[Tuple2[Int,Node]]
   if(initialNode.isDefined) {
-    listOfNodes += initialNode.get
+    listOfNodes += Tuple2[Int,Node](0, initialNode.get)
   }
 
   private var operation = UNDEFINED_IDENTIFIER
@@ -33,43 +40,55 @@ class GrammarExpression(graph: GrammarGraph, initialNode: Option[Node]) extends 
 
   override def toString: String = {
     val builder = new StringBuilder
-    builder.append("(")
 
     if (cardinality.equals(OPTIONAL)) {
       builder.append("!")
+    } else if(cardinality.equals(ONLY_ONE)) {
+      builder.append("(")
     }
 
-    builder.append(listOfNodes.map{
-      node => node match {
-        case node: NonTerminalNode => "'" + node.nodeName.name
-        case _ => node.toString
+    builder.append(s = listOfNodes.map {
+      node => {
+        ((node._1 != 0) match {
+          case true => "(" + node._1 + ")~ ";
+          case _ => ""
+        }) + (node._2 match {
+          case node: NonTerminalNode => "'" + node.nodeName.name
+          case _ => node._2.toString
+        })
       }
     }.mkString(" " + operation + " "))
-    builder.append(")")
 
     if (!cardinality.equals(OPTIONAL)) {
+      if(cardinality.equals(ONLY_ONE)) {
+        builder.append(")")
+      }
       builder.append(cardinality)
     }
 
     return builder.toString
   }
 
-  def + : GrammarExpression = {
-    cardinality = ONE_OR_MANY
-    this
+  private def withCardinality(cardinality: String) : GrammarExpression = {
+    val newInnerExpr = new GrammarExpression(graph)
+    newInnerExpr.cardinality = cardinality
+    newInnerExpr.listOfNodes += Tuple2[Int,Node](0, this)
+
+    newInnerExpr.lock()
+
+    return newInnerExpr
   }
 
-  def * : GrammarExpression = {
-    cardinality = ZERO_OR_MANY
+  def + : GrammarExpression = withCardinality(ONE_OR_MANY)
+
+  def * : GrammarExpression = withCardinality(ZERO_OR_MANY)
+
+  def unary_! : GrammarExpression = withCardinality(OPTIONAL)
+
+  def ~ (sem: Int): GrammarExpression =  {
+    semanticHint = sem
     this
   }
-
-  def unary_! : GrammarExpression = {
-    cardinality = OPTIONAL
-    this
-  }
-
-  def ~ (sem: Int): GrammarExpression = this
 
   def ~ (tokenType: TokenType) : GrammarExpression = {
     val terminalNode = graph.convertTokenTypeToTerminal(tokenType)
@@ -80,21 +99,33 @@ class GrammarExpression(graph: GrammarGraph, initialNode: Option[Node]) extends 
     this.|(terminalNode)
   }
   def ~ (symbol: Symbol) : GrammarExpression = {
-    val nonTerminal = graph.convertSymbolToNonTerminal(symbol)
-    this.~(nonTerminal)
+    var node: Option[Node] = None
+    if (LexicalConstants.reservedIdentifiers.contains(symbol.name)) {
+      node = Some(new TerminalNode(ReservedWord, Some(symbol.name)))
+    }  else {
+      node = Some(graph.convertSymbolToNonTerminal(symbol))
+    }
+    this.~(node.get)
   }
   def | (symbol: Symbol) : GrammarExpression = {
-    val nonTerminal = graph.convertSymbolToNonTerminal(symbol)
-    this.|(nonTerminal)
+
+    var node: Option[Node] = None
+    if (LexicalConstants.reservedIdentifiers.contains(symbol.name)) {
+      node = Some(new TerminalNode(ReservedWord, Some(symbol.name)))
+    }  else {
+      node = Some(graph.convertSymbolToNonTerminal(symbol))
+    }
+    this.|(node.get)
   }
 
   def ~ (otherNode: Node) : GrammarExpression = operation match {
-    case SEQ_IDENTIFIER | UNDEFINED_IDENTIFIER => {
+    case SEQ_IDENTIFIER | UNDEFINED_IDENTIFIER if !locked => {
       operation = SEQ_IDENTIFIER
-      listOfNodes += otherNode
+      listOfNodes += Tuple2[Int, Node](semanticHint, otherNode)
+      semanticHint = 0
       return this
     }
-    case OR_IDENTIFIER => {
+    case _ => {
       val newNode = new GrammarExpression(graph)
       (newNode ~ this) ~ otherNode // Create a new node and do an OR operation with it
       return newNode
@@ -102,12 +133,13 @@ class GrammarExpression(graph: GrammarGraph, initialNode: Option[Node]) extends 
   }
 
   def | (otherNode: Node) : GrammarExpression = operation match {
-    case OR_IDENTIFIER | UNDEFINED_IDENTIFIER => {
+    case OR_IDENTIFIER | UNDEFINED_IDENTIFIER if !locked  => {
       operation = OR_IDENTIFIER
-      listOfNodes += otherNode
+      listOfNodes += Tuple2[Int, Node](semanticHint, otherNode)
+      semanticHint = 0
       return this
     }
-    case SEQ_IDENTIFIER => {
+    case _ => {
       val newNode = new GrammarExpression(graph)
       (newNode | this) | otherNode // Create a new node and do an SEQ operation with it
       return newNode

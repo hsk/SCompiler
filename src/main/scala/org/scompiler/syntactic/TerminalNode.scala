@@ -3,9 +3,12 @@ package org.scompiler.syntactic
 import org.scompiler.lexer.TokenType._
 import org.scompiler.lexer.Token
 
-class TerminalNode(tokenType : TokenType) extends Node {
+class TerminalNode(tokenType: TokenType, expectedValue: Option[String]) extends Node {
+
+  def this(tokenType: TokenType) = this(tokenType, None)
+
   def parseToken(token: Token) {}
-  override def toString = tokenType.toString
+  override def toString = expectedValue.getOrElse(tokenType.toString)
 }
 
 /**
@@ -15,8 +18,6 @@ class TerminalNode(tokenType : TokenType) extends Node {
 object TerminalNode {
   /**
    * Auto convert any instance of TokenType to his correspondent TerminalToken
-   *
-   * TODO: Hold a map of terminalNode, so that one tokenType can have only one instance of TerminalNode
    *
    * @param tokenType
    * @return

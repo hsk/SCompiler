@@ -2,12 +2,6 @@ package org.scompiler.lexer
 
 import org.scompiler.lexer.TokenType._
 
-class Token(val tokenType: TokenType, val tokenName: String) {
-
-  override def equals(other: Any): Boolean = other match {
-    case t: Token => (tokenType.equals(t.tokenType)) && (tokenName.equals(t.tokenName))
-    case _ => false
-  }
-
+case class Token(val tokenType: TokenType, val tokenName: String) {
   override def toString: String = "(" + tokenType.toString + ", " + tokenName + " )"
 }

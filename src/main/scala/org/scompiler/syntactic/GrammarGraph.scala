@@ -2,6 +2,7 @@ package org.scompiler.syntactic
 
 import org.scompiler.lexer.TokenType._
 import collection.mutable.HashMap
+import org.scompiler.lexer.LexicalConstants
 
 trait GrammarGraph {
   private val terminals = new HashMap[TokenType, TerminalNode]
@@ -23,9 +24,11 @@ trait GrammarGraph {
   }
 
   implicit def convertSymbolToExpression(symbol: Symbol): GrammarExpression = {
-    val expr = new GrammarExpression(this, Some(convertSymbolToNonTerminal(symbol)))
-
-    return expr
+    if(LexicalConstants.reservedIdentifiers.contains(symbol.name)) {
+      new GrammarExpression(this, Some(new TerminalNode(ReservedWord, Some(symbol.name))))
+    } else {
+      new GrammarExpression(this, Some(convertSymbolToNonTerminal(symbol)))
+    }
   }
 
   implicit def convertTokenTypeToTerminal(tokenType: TokenType): TerminalNode = {
