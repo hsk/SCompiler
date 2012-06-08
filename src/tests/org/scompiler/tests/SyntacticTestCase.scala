@@ -38,7 +38,7 @@ class SyntacticTestCase extends FunSpec with ShouldMatchers {
 
       grammarGraph.getNonTerminal('numbers).get.toString should be("(NaturalNumber | RealNumber | ScientificNotationNumber)")
       grammarGraph.getNonTerminal('operation).get.toString should be("('numbers ~ (AddOperator | MinusOperator) ~ 'numbers)")
-      grammarGraph.getNonTerminal('statement).get.toString should be("('variable ~ AttributionOperator ~ (10)~ 'operation ~ SemiColon)+")
+      grammarGraph.getNonTerminal('statement).get.toString should be("('variable ~ AttributionOperator ~ (10) ~ 'operation ~ SemiColon)+")
     }
   }
 }

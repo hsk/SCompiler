@@ -1,5 +1,6 @@
 package org.scompiler.syntactic
 
+import expression.AbstractExpression
 import org.scompiler.lexer.TokenType._
 import collection.mutable.HashMap
 import org.scompiler.lexer.LexicalConstants
@@ -23,11 +24,11 @@ trait GrammarGraph {
     getNonTerminal(symbol).getOrElse(new NonTerminalNode(symbol, this))
   }
 
-  implicit def convertSymbolToExpression(symbol: Symbol): GrammarExpression = {
+  implicit def convertSymbolToExpression(symbol: Symbol): AbstractExpression = {
     if(LexicalConstants.reservedIdentifiers.contains(symbol.name)) {
-      new GrammarExpression(this, Some(new TerminalNode(ReservedWord, Some(symbol.name))))
+      new AbstractExpression(this, Some(new TerminalNode(ReservedWord, Some(symbol.name))))
     } else {
-      new GrammarExpression(this, Some(convertSymbolToNonTerminal(symbol)))
+      new AbstractExpression(this, Some(convertSymbolToNonTerminal(symbol)))
     }
   }
 
@@ -38,8 +39,8 @@ trait GrammarGraph {
     return node
   }
 
-  implicit def convertTokenTypeToExpression(tokenType: TokenType): GrammarExpression = {
-    val expr = new GrammarExpression(this, Some(convertTokenTypeToTerminal(tokenType)))
+  implicit def convertTokenTypeToExpression(tokenType: TokenType): AbstractExpression = {
+    val expr = new AbstractExpression(this, Some(convertTokenTypeToTerminal(tokenType)))
 
     return expr
   }
