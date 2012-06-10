@@ -1,7 +1,8 @@
 package org.scompiler.syntactic
 
-import org.scompiler.lexer.Token
+import org.scompiler.exception.WrongPathException
 
 abstract class Node {
-  def parseToken(token: Token);
+  @throws(classOf[WrongPathException])
+  def traverseGraph(context: NodeTraverseContext)
 }

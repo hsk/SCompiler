@@ -1,6 +1,7 @@
 package org.scompiler.syntactic
 
 import expression.AbstractExpression
+import nodes.{SeqNode, NonTerminalNode, TerminalNode}
 import org.scompiler.lexer.TokenType._
 import collection.mutable.HashMap
 import org.scompiler.lexer.LexicalConstants
@@ -8,6 +9,11 @@ import org.scompiler.lexer.LexicalConstants
 trait GrammarGraph {
   private val terminals = new HashMap[TokenType, TerminalNode]
   private val nonTerminals = new HashMap[Symbol, NonTerminalNode]
+
+  var initialNode : Node = null
+  def setInitialNode(symbol: Symbol) {
+    initialNode = convertSymbolToNonTerminal(symbol)
+  }
 
   def getNonTerminal(nodeName: Symbol): Option[NonTerminalNode] = nonTerminals.get(nodeName)
   def getTerminal (tokenType: TokenType) : Option[TerminalNode] = terminals.get(tokenType)
@@ -20,16 +26,8 @@ trait GrammarGraph {
     terminals.put(tokenType, node)
   }
 
-  implicit def convertSymbolToNonTerminal(symbol: Symbol): NonTerminalNode = {
-    getNonTerminal(symbol).getOrElse(new NonTerminalNode(symbol, this))
-  }
-
-  implicit def convertSymbolToExpression(symbol: Symbol): AbstractExpression = {
-    if(LexicalConstants.reservedIdentifiers.contains(symbol.name)) {
-      new AbstractExpression(this, Some(new TerminalNode(ReservedWord, Some(symbol.name))))
-    } else {
-      new AbstractExpression(this, Some(convertSymbolToNonTerminal(symbol)))
-    }
+  implicit def convertStringToNode(value: String): TerminalNode = {
+    return new TerminalNode(ReservedWord, Some(value))
   }
 
   implicit def convertTokenTypeToTerminal(tokenType: TokenType): TerminalNode = {
@@ -39,9 +37,15 @@ trait GrammarGraph {
     return node
   }
 
-  implicit def convertTokenTypeToExpression(tokenType: TokenType): AbstractExpression = {
-    val expr = new AbstractExpression(this, Some(convertTokenTypeToTerminal(tokenType)))
+  implicit def convertSymbolToNonTerminal (symbol : Symbol) : NonTerminalNode = {
+    val node = getNonTerminal(symbol).getOrElse(new NonTerminalNode(symbol, this))
+    setNonTerminal(symbol, node)
+    return node
+  }
 
+  implicit def convertNodeToExpression [NodeExpr <% Node](node: NodeExpr): AbstractExpression = {
+    val expr = new SeqNode
+    expr.init(this, Some(node))
     return expr
   }
 }

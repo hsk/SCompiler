@@ -6,20 +6,23 @@ import org.scompiler.lexer.{LexicalConstants, Token}
 import org.scompiler.syntactic.expression.ExpressionCardinality.{ExpressionCardinality, _}
 import org.scompiler.syntactic.expression.ExpressionOperator.{ExpressionOperator, _}
 import org.scompiler.syntactic._
+import nodes.{CardinalityNode, SeqNode, NonTerminalNode, TerminalNode}
+import org.scompiler.exception.WrongPathException
 
-class AbstractExpression(graph: GrammarGraph, initialNode: Option[Node]) extends Node {
-  def this(graph: GrammarGraph) = this(graph, None)
+trait AbstractExpression {
 
   protected var listOfNodes = new ArrayBuffer[(Node,Int)]
   private var locked = false;
   protected var operation: ExpressionOperator = UNDEFINED
   protected var cardinality: ExpressionCardinality = ONLY_ONE
+  protected var graph: GrammarGraph = null
 
-  if(initialNode.isDefined) {
-    listOfNodes += Tuple2(initialNode.get, 0)
+  def init(graph: GrammarGraph, initialNode: Option[Node]) {
+    if(initialNode.isDefined) {
+      listOfNodes += Tuple2(initialNode.get, 0)
+    }
+    this.graph = graph
   }
-
-  def parseToken(token: Token) {}
 
   def lock() {
     locked = true;
@@ -57,11 +60,10 @@ class AbstractExpression(graph: GrammarGraph, initialNode: Option[Node]) extends
   }
 
   private def withCardinality(cardinality: ExpressionCardinality) : AbstractExpression = {
-    val newInnerExpr = new AbstractExpression(graph)
+    val newInnerExpr = new CardinalityNode(this.asInstanceOf[Node])
+    newInnerExpr.init(graph, None)
     newInnerExpr.cardinality = cardinality
-    newInnerExpr.listOfNodes += Tuple2(this, 0)
-
-    newInnerExpr.lock()
+    newInnerExpr.listOfNodes += Tuple2(this.asInstanceOf[Node], 0)
 
     return newInnerExpr
   }
@@ -80,35 +82,27 @@ class AbstractExpression(graph: GrammarGraph, initialNode: Option[Node]) extends
     this
   }
 
-  def ~ (tokenType: TokenType) : AbstractExpression = {
-    val terminalNode = graph.convertTokenTypeToTerminal(tokenType)
-    this.~(terminalNode)
-  }
-  def | (tokenType: TokenType) : AbstractExpression = {
-    val terminalNode = graph.convertTokenTypeToTerminal(tokenType)
-    this.|(terminalNode)
-  }
-  def ~ (symbol: Symbol) : AbstractExpression = {
-    var node: Option[Node] = None
-    if (LexicalConstants.reservedIdentifiers.contains(symbol.name)) {
-      node = Some(new TerminalNode(ReservedWord, Some(symbol.name)))
-    }  else {
-      node = Some(graph.convertSymbolToNonTerminal(symbol))
-    }
-    this.~(node.get)
-  }
-  def | (symbol: Symbol) : AbstractExpression = {
+  def seqNode(node: Node) : AbstractExpression = this.~(node)
 
-    var node: Option[Node] = None
-    if (LexicalConstants.reservedIdentifiers.contains(symbol.name)) {
-      node = Some(new TerminalNode(ReservedWord, Some(symbol.name)))
-    }  else {
-      node = Some(graph.convertSymbolToNonTerminal(symbol))
+  def altNode(node: Node) : AbstractExpression = this.|(node)
+
+  def ~ (expr: AbstractExpression) : AbstractExpression = {
+    if(expr.isInstanceOf[Node]) {
+      this.~(expr.asInstanceOf[Node])
+    } else {
+      throw new RuntimeException
     }
-    this.|(node.get)
   }
 
-  def ~ (otherNode: Node) : AbstractExpression = operation match {
+  def | (expr: AbstractExpression) : AbstractExpression = {
+    if(expr.isInstanceOf[Node]) {
+      this.|(expr.asInstanceOf[Node])
+    } else {
+      throw new RuntimeException
+    }
+  }
+
+  def ~ [NodeF <% Node](otherNode: NodeF) : AbstractExpression = operation match {
     case SEQUENCE if !locked => {
       operation = SEQUENCE
       listOfNodes += Tuple2(otherNode, 0)
@@ -124,11 +118,12 @@ class AbstractExpression(graph: GrammarGraph, initialNode: Option[Node]) extends
         }
       }
 
-      newNode.~(otherNode)
+      newNode.seqNode(otherNode)
+      newNode
     }
   }
 
-  def | (otherNode: Node) : AbstractExpression = operation match {
+  def | [NodeF <% Node](otherNode: NodeF) : AbstractExpression = operation match {
     case ALTERNATIVE if !locked  => {
       operation = ALTERNATIVE
       listOfNodes += Tuple2(otherNode, 0)
@@ -144,7 +139,7 @@ class AbstractExpression(graph: GrammarGraph, initialNode: Option[Node]) extends
         }
       }
 
-      newNode.|(otherNode)
+      newNode.altNode(otherNode)
     }
   }
 }

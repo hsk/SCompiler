@@ -7,7 +7,7 @@ class PascalGrammarGraph extends GrammarGraph {
   'program ~> { 'program_heading ~ SemiColon ~ 'block ~ Dot }
 
   'program_heading ~> {
-    'Program ~ Identifier ~ !(ParenthesisOpen ~ 'identifier_list ~ ParenthesisClose)
+    "PROGRAM" ~ Identifier ~ !(ParenthesisOpen ~ 'identifier_list ~ ParenthesisClose)
   }
 
   'block ~> {
@@ -21,11 +21,11 @@ class PascalGrammarGraph extends GrammarGraph {
 
   'number -> { NaturalNumber | RealNumber | ScientificNotationNumber }
 
-  'label_declaration_part ~> { !('LABEL ~ 'label_list ~ SemiColon) }
+  'label_declaration_part ~> { !("LABEL" ~ 'label_list ~ SemiColon) }
 
   'label_list ~> { 'number ~ !(Comma ~ 'label_list) }
 
-  'constant_definition_part ~> { !('CONST ~ ('constant_list+)) }
+  'constant_definition_part ~> { !("CONST" ~ 'constant_list) }
 
   'constant_list ~> { 'constant_definition ~ !(Comma ~ 'constant_list) }
 
@@ -33,11 +33,11 @@ class PascalGrammarGraph extends GrammarGraph {
 
   'cexpression ~> { String | ( !('sign) ~ (Identifier | 'number) ) }
 
-  'type_definition_part ~> { !('TYPE ~ 'type_declaration) }
+  'type_definition_part ~> { !("TYPE" ~ 'type_declaration) }
 
   'type_definition ~> { (Identifier ~ EqualsOperator ~ 'type ~ SemiColon).+ }
 
-  'var_declaration_part ~> { !('VAR ~ 'var_declaration) }
+  'var_declaration_part ~> { !("VAR" ~ 'var_declaration) }
 
   'var_declaration ~> { ('identifier_list ~ Colon ~ 'type ~ SemiColon).+ }
 
@@ -47,25 +47,25 @@ class PascalGrammarGraph extends GrammarGraph {
 
   'procedure_and_function_declaration ~> {
     (
-      ('PROC ~ Identifier ~ 'palist) |
-      ('FUNC ~ Identifier ~ 'palist ~ Colon ~ Identifier)
+      ("PROC" ~ Identifier ~ 'palist) |
+      ("FUNC" ~ Identifier ~ 'palist ~ Colon ~ Identifier)
     ) ~ SemiColon ~ 'block ~ SemiColon
   }
 
-  'statement_part ~> { 'BEGIN ~ 'statement_list ~ 'END }
+  'statement_part ~> { "BEGIN" ~ 'statement_list ~ "END" }
 
   'statement_list ~> { 'statement ~ !(SemiColon ~ 'statement_list) }
 
   'term ~> {
     'factor |
-    ('term ~ (MultiplicationOperator | DivisionOperator | 'DIV | 'MOD | 'AND) )
+    ('term ~ (MultiplicationOperator | DivisionOperator | "DIV" | "MOD" | "AND") )
   }
 
   'siexpr ~> { !(AddOperator | MinusOperator) ~ 'siexpr_term }
 
   'siexpr_term ~> {
     'term  |
-    ('siexpr_term ~ (AddOperator | MinusOperator | 'OR))
+    ('siexpr_term ~ (AddOperator | MinusOperator | "OR"))
   }
 
   'expr ~> {
@@ -77,7 +77,7 @@ class PascalGrammarGraph extends GrammarGraph {
         GreaterEqualsThenOperator |
         GreaterThenOperator |
         NotEqualsOperator |
-        'IN) ~ 'siexpr )
+        "IN") ~ 'siexpr )
   }
 
   'expr_list ~> { 'expr ~ !(Comma ~ 'expr_list) }
@@ -90,7 +90,7 @@ class PascalGrammarGraph extends GrammarGraph {
 
   'type ~> {
     (Pointer ~ Identifier) |
-    (!('PACKED) ~ 'type_branches)
+    (!("PACKED") ~ 'type_branches)
   }
 
   'type_branches ~> {
@@ -101,15 +101,15 @@ class PascalGrammarGraph extends GrammarGraph {
     'sitype
   }
 
-  'type_array_branch ~> { 'ARRAY ~ BracketOpen ~ 'type_array_sitypes ~ BracketClose ~ 'OF ~ 'type }
+  'type_array_branch ~> { "ARRAY" ~ BracketOpen ~ 'type_array_sitypes ~ BracketClose ~ "OF" ~ 'type }
 
   'type_array_sitypes ~> { 'sitype | ('type_array_sitypes ~ Comma) }
 
-  'type_file_branch ~> {'FILE ~ 'OF ~ 'type }
+  'type_file_branch ~> {"FILE" ~ "OF" ~ 'type }
 
-  'type_set_branch ~> { 'SET ~ 'OF ~ 'sitype }
+  'type_set_branch ~> { "SET" ~ "OF" ~ 'sitype }
 
-  'type_record_branch ~> { 'RECORD ~ 'filist ~ 'END }
+  'type_record_branch ~> { "RECORD" ~ 'filist ~ "END" }
 
   'infipo ~> {
     (
@@ -128,20 +128,20 @@ class PascalGrammarGraph extends GrammarGraph {
   }
 
   'palist_branches ~> {
-    ('PROC ~  'identifier_list) |
-    (('FUNC | 'VAR) ~ 'identifier_list ~ Colon ~ Identifier)
+    ("PROC" ~  'identifier_list) |
+    (("FUNC" | 'VAR) ~ 'identifier_list ~ Colon ~ Identifier)
   }
 
   'factor ~> {
     (Identifier ~ 'infipo) | //VAIDEN
       (Identifier ~ !(BraceOpen ~ 'expr_list ~ BraceClose)) | //FUIDEN
       Identifier | //COIDEN
-      'NIL |
+      "NIL" |
       'number |
       String |
       (BraceOpen ~ 'expr ~ BraceClose) |
       'factor_expr |
-      ('NOT ~ 'factor)
+      ("NOT" ~ 'factor)
   }
 
   'factor_expr ~> {
@@ -155,8 +155,8 @@ class PascalGrammarGraph extends GrammarGraph {
 
   'filist ~> {
     ('filist_iden_list) ~
-    'CASE ~ !(Identifier ~ Dot) ~ //FIXME: VERIFICAR
-    Pointer ~ Identifier ~ 'OF ~ 'filist_list
+    "CASE" ~ !(Identifier ~ Dot) ~ //FIXME: VERIFICAR
+    Pointer ~ Identifier ~ "OF" ~ 'filist_list
   }
 
   'filist_list ~> {
@@ -171,8 +171,8 @@ class PascalGrammarGraph extends GrammarGraph {
 
   'statement ~> {
     ('number ~ Colon) |
-    ('BEGIN ~ 'statement_list ~ 'END) |
-    ('GOTO ~ 'number)
+    ("BEGIN" ~ 'statement_list ~ "END") |
+    ("GOTO" ~ 'number)
     ('statement_setvalue_branch) |
     ('statement_priden_branch) |
     ('statement_if_branch) |
@@ -183,17 +183,17 @@ class PascalGrammarGraph extends GrammarGraph {
     ('statement_with_branch)
   }
 
-  'statement_while_branch ~> { 'WHILE ~ 'expr ~ 'DO ~ 'statement }
+  'statement_while_branch ~> { "WHILE" ~ 'expr ~ "DO" ~ 'statement }
 
   'statement_repeat_branch ~> {
-    'WHILE ~ 'statement_list ~ 'UNTIL ~ 'expr
+    "WHILE" ~ 'statement_list ~ "UNTIL" ~ 'expr
   }
 
   'statement_for_branch ~> {
-    'FOR ~ Identifier ~ 'infipo ~ AttributionOperator ~ 'expr ~ ('TO | 'DOWNTO) ~ 'expr ~ 'DO ~ 'statement
+    "FOR" ~ Identifier ~ 'infipo ~ AttributionOperator ~ 'expr ~ ("TO" | "DOWNTO") ~ 'expr ~ "DO" ~ 'statement
   }
 
-  'statement_with_branch ~> { 'WITH ~ 'statement_infipo_list ~ 'DO ~ 'statement }
+  'statement_with_branch ~> { "WITH" ~ 'statement_infipo_list ~ "DO" ~ 'statement }
 
   'statement_infipo_list ~> {
     ( Identifier ~ 'infipo) ~ !(Comma ~ 'statement_infipo_list)
@@ -213,17 +213,17 @@ class PascalGrammarGraph extends GrammarGraph {
   }
 
   'statement_if_branch ~> {
-    'IF ~ 'expr ~ 'THEN ~ 'statement ~ !('ELSE ~ 'statement)
+    "IF" ~ 'expr ~ "THEN" ~ 'statement ~ !("ELSE" ~ 'statement)
   }
 
   'statement_case_branch ~> {
-    'CASE ~ 'expr ~ 'OF ~ 'statement_case_list
+    "CASE" ~ 'expr ~ "OF" ~ 'statement_case_list
   }
 
   'statement_case_list ~> {
     'statement_case ~
     ( (SemiColon ~ 'statement_case_list) |
-      'END )
+      "END" )
   }
 
   'statement_case ~> { ('const_value_list ~ Colon ~ 'statement) }
@@ -238,6 +238,6 @@ class PascalGrammarGraph extends GrammarGraph {
   }
 
   'sign ~> {
-    'PLUS | 'MINUS
+    AddOperator | MinusOperator
   }
 }
