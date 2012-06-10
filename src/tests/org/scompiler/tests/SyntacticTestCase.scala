@@ -12,6 +12,15 @@ import org.scompiler.exception.WrongPathException
 
 @RunWith(classOf[JUnitRunner])
 class SyntacticTestCase extends FunSpec with ShouldMatchers {
+  def testTraverse(graph: GrammarGraph, input: String, initialNode: Symbol) {
+    val tokenizer = new LexicalTokenizer(input.iterator)
+    val context = new NodeTraverseContext(tokenizer)
+
+    graph.getNonTerminal(initialNode).get.traverseGraph(context)
+    tokenizer.hasNext should be(false)
+    context.hasFinishedTokens should be(true)
+  }
+
   describe("A Syntatic component of a compiler") {
 
     it("should be able to build a simple grammar graph") {
@@ -55,21 +64,40 @@ class SyntacticTestCase extends FunSpec with ShouldMatchers {
         setInitialNode('statement_list)
       }
 
-      val input =
-        """
-          myvar := 10 - 10.2;
-          myvar2 := 10.2 + 1
-        """
-      val tokenizer = new LexicalTokenizer(input.iterator)
-      val context = new NodeTraverseContext(tokenizer)
+      val input = " myvar := 10 - 10.2; myvar := 10 + 10.2; myvar := 2.2 - 1"
+      testTraverse(grammarGraph, input, 'statement_list)
 
-      try {
-        grammarGraph.getNonTerminal('statement_list).get.traverseGraph(context)
-      } catch {
-        case ex: WrongPathException => fail("no valid path, expecting " + ex.nodeCause)
+      val input2 = " myvar := 10 - 10.2; myvar := 10 - 10.2"
+      testTraverse(grammarGraph, input2, 'statement_list)
+
+      val input3 = " myvar := 10 - 10.2"
+      testTraverse(grammarGraph, input3, 'statement_list)
+    }
+
+    it("should be able to traverse a grammar graph with cardinality") {
+      val grammarGraph = new GrammarGraph {
+        'variable ~> { Identifier }
+        'numbers ~> { NaturalNumber | RealNumber | ScientificNotationNumber }
+        'operation ~> { 'numbers ~ (AddOperator | MinusOperator) ~ 'numbers }
+        'statement ~> { 'variable ~ AttributionOperator ~(10)~ 'operation }
+        'statement_list ~> { 'statement ~ (SemiColon ~ 'statement).+ }
+
+        setInitialNode('statement_list)
       }
-      tokenizer.hasNext should be(false)
-      context.hasFinishedTokens should be(true)
+
+      val input = " myvar := 10 - 10.2; myvar := 10 + 10.2; myvar := 2.2 - 1"
+      testTraverse(grammarGraph, input, 'statement_list)
+
+      val input2 = " myvar := 10 - 10.2; myvar := 10 - 10.2"
+      testTraverse(grammarGraph, input2, 'statement_list)
+
+      val input3 = " myvar := 10 - 10.2"
+      try {
+        testTraverse(grammarGraph, input3, 'statement_list)
+        fail("expect two statements at minimum")
+      } catch {
+        case ex: WrongPathException => {/* Expected */ }
+      }
     }
   }
 }

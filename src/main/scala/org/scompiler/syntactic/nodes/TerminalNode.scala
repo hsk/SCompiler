@@ -10,7 +10,7 @@ class TerminalNode(tokenType: TokenType, expectedValue: Option[String]) extends 
   def this(tokenType: TokenType) = this(tokenType, None)
 
   override def traverseGraph(context: NodeTraverseContext) {
-    val token = context.currentToken.get
+    val token = context.currentToken.getOrElse{ throw new WrongPathException(this) }
     if (!tokenType.equals(token.tokenType)) {
       throw new WrongPathException(this)
     }

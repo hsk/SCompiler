@@ -12,19 +12,26 @@ class CardinalityNode(node: Node) extends Node with AbstractExpression {
   def traverseGraph(context: NodeTraverseContext) {
     cardinality match {
       case ONE_OR_MANY => {
-
+         node.traverseGraph(context)
+         while(tryTraverse()){}
       }
       case ZERO_OR_MANY => {
-
+        while(tryTraverse()){}
       }
       case OPTIONAL => {
-        val currentPosition = context.currentPosition
-        try {
-          node.traverseGraph(context)
-        } catch {
-          case ex: Exception => {
-            context.resetToPosition(currentPosition)
-          }
+        tryTraverse()
+      }
+    }
+
+    def tryTraverse(): Boolean = {
+      val currentPosition = context.currentPosition
+      try {
+        node.traverseGraph(context)
+        return true
+      } catch {
+        case ex: Exception => {
+          context.resetToPosition(currentPosition)
+          return false
         }
       }
     }
