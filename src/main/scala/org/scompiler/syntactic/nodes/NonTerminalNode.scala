@@ -9,7 +9,7 @@ class NonTerminalNode(val nodeName: Symbol, graph: GrammarGraph) extends Node {
   private var expr: Option[AbstractExpression] = None
 
 
-  override def toString = expr.get.toString
+  override def toString = expr.getOrElse(nodeName).toString
 
   def ~>(func: => AbstractExpression) {
     expr = Some(func)

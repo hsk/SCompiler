@@ -14,7 +14,7 @@ class PascalGrammarGraph extends GrammarGraph {
     'label_declaration_part ~
     'constant_definition_part ~
     'type_definition_part ~
-    'variable_declaration_part ~
+    'var_declaration_part ~
     'procedure_and_function_declaration_part ~
     'statement_part
   }

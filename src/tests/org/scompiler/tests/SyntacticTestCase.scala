@@ -6,8 +6,8 @@ import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.scompiler.lexer.TokenType._
 import org.scompiler.lexer.LexicalTokenizer
-import org.scompiler.syntactic.{NodeTraverseContext, GrammarGraph}
 import org.scompiler.exception.WrongPathException
+import org.scompiler.syntactic.{PascalGrammarGraph, NodeTraverseContext, GrammarGraph}
 
 
 @RunWith(classOf[JUnitRunner])
@@ -98,6 +98,18 @@ class SyntacticTestCase extends FunSpec with ShouldMatchers {
       } catch {
         case ex: WrongPathException => {/* Expected */ }
       }
+    }
+
+    it ("Should recognize an entire Pascal program"){
+      val pascalGrammar = new PascalGrammarGraph
+
+      val input = "program test; begin end. "
+      try {
+        testTraverse(pascalGrammar, input, 'program)
+      } catch {
+        case ex: WrongPathException => fail("fail at node " + ex.nodeCause)
+      }
+
     }
   }
 }
