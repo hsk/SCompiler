@@ -103,7 +103,7 @@ class SyntacticTestCase extends FunSpec with ShouldMatchers {
     it ("Should recognize an entire Pascal program"){
       val pascalGrammar = new PascalGrammarGraph
 
-      val input = "program test; begin end. "
+      val input = "program test; begin x := 1; y := x end. "
       try {
         testTraverse(pascalGrammar, input, 'program)
       } catch {

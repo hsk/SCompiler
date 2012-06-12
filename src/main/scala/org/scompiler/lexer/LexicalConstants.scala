@@ -11,7 +11,7 @@ object LexicalConstants {
 
   val endLineTokens = Array('\0', '\n')
 
-  val endTokens = endLineTokens :+ ' ';
+  val endTokens = endLineTokens ++ Array(' ', '\t')
 
   val operatorsSymbols = Set("+", "-", "*", "/",
     "=", ":=", "<", ">",
@@ -24,7 +24,7 @@ object LexicalConstants {
 
   val reservedIdentifiers = Set("AND", "ARRAY", "BEGIN", "CASE", "CONST", "DIV", "DO", "DOWNTO",
     "ELSE", "END", "FILE", "FOR", "FUNCTION", "GOTO", "IF", "IN",
-    "LABEL", "MOD", "NIL", "NOT", "OF", "OR", "PACKED", "PROCEDURE    ",
+    "LABEL", "MOD", "NIL", "NOT", "OF", "OR", "PACKED", "PROCEDURE",
     "PROGRAM", "RECORD", "REPEAT", "SET", "THEN", "TO", "TYPE",
     "UNTIL", "VAR", "WHILE", "WITH", "USES")
 

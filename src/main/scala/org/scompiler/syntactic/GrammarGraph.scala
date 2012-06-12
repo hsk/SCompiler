@@ -44,6 +44,9 @@ trait GrammarGraph {
   }
 
   implicit def convertNodeToExpression [NodeExpr <% Node](node: NodeExpr): AbstractExpression = {
+    if (node.isInstanceOf[AbstractExpression]) {
+      return node.asInstanceOf[AbstractExpression]
+    }
     val expr = new SeqNode
     expr.init(this, Some(node))
     return expr

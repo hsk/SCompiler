@@ -19,7 +19,7 @@ class PascalGrammarGraph extends GrammarGraph {
     'statement_part
   }
 
-  'number -> { NaturalNumber | RealNumber | ScientificNotationNumber }
+  'number ~> { NaturalNumber | RealNumber | ScientificNotationNumber }
 
   'label_declaration_part ~> { !("LABEL" ~ 'label_list ~ SemiColon) }
 
@@ -27,28 +27,26 @@ class PascalGrammarGraph extends GrammarGraph {
 
   'constant_definition_part ~> { !("CONST" ~ 'constant_list) }
 
-  'constant_list ~> { 'constant_definition ~ !(Comma ~ 'constant_list) }
-
-  'constant_definition ~> { Identifier ~ EqualsOperator ~ 'cexpression ~ SemiColon }
+  'constant_list ~> { (Identifier ~ EqualsOperator ~ 'cexpression ~ SemiColon).+ }
 
   'cexpression ~> { String | ( !('sign) ~ (Identifier | 'number) ) }
 
   'type_definition_part ~> { !("TYPE" ~ 'type_declaration) }
 
-  'type_definition ~> { (Identifier ~ EqualsOperator ~ 'type ~ SemiColon).+ }
+  'type_declaration ~> { (Identifier ~ EqualsOperator ~ 'type ~ SemiColon).+ }
 
   'var_declaration_part ~> { !("VAR" ~ 'var_declaration) }
 
   'var_declaration ~> { ('identifier_list ~ Colon ~ 'type ~ SemiColon).+ }
 
-  'identifier_list ~> { Identifier ~ !(Comma ~ 'idetifier_list) }
+  'identifier_list ~> { Identifier ~ !(Comma ~ 'identifier_list) }
 
   'procedure_and_function_declaration_part ~> { ('procedure_and_function_declaration).* }
 
   'procedure_and_function_declaration ~> {
     (
-      ("PROC" ~ Identifier ~ 'palist) |
-      ("FUNC" ~ Identifier ~ 'palist ~ Colon ~ Identifier)
+      ("PROCEDURE" ~ Identifier ~ 'palist) |
+      ("FUNCTION" ~ Identifier ~ 'palist ~ Colon ~ Identifier)
     ) ~ SemiColon ~ 'block ~ SemiColon
   }
 
@@ -57,15 +55,14 @@ class PascalGrammarGraph extends GrammarGraph {
   'statement_list ~> { 'statement ~ !(SemiColon ~ 'statement_list) }
 
   'term ~> {
-    'factor |
-    ('term ~ (MultiplicationOperator | DivisionOperator | "DIV" | "MOD" | "AND") )
+    'factor ~
+    !((MultiplicationOperator | DivisionOperator | "DIV" | "MOD" | "AND") ~ 'term )
   }
 
   'siexpr ~> { !(AddOperator | MinusOperator) ~ 'siexpr_term }
 
   'siexpr_term ~> {
-    'term  |
-    ('siexpr_term ~ (AddOperator | MinusOperator | "OR"))
+    'term  ~ !( (AddOperator | MinusOperator | "OR") ~ 'siexpr_term)
   }
 
   'expr ~> {
@@ -84,8 +81,8 @@ class PascalGrammarGraph extends GrammarGraph {
 
   'sitype ~> {
     Identifier |
-    (BraceOpen ~ 'identifier_list  ~ BraceClose) |
-    ('const ~ Range ~ 'const)
+    (ParenthesisOpen ~ 'identifier_list  ~ ParenthesisClose) |
+    ('const_value ~ Range ~ 'const_value)
   }
 
   'type ~> {
@@ -103,7 +100,7 @@ class PascalGrammarGraph extends GrammarGraph {
 
   'type_array_branch ~> { "ARRAY" ~ BracketOpen ~ 'type_array_sitypes ~ BracketClose ~ "OF" ~ 'type }
 
-  'type_array_sitypes ~> { 'sitype | ('type_array_sitypes ~ Comma) }
+  'type_array_sitypes ~> { 'sitype ~ !(Comma ~ 'type_array_sitypes) }
 
   'type_file_branch ~> {"FILE" ~ "OF" ~ 'type }
 
@@ -116,32 +113,32 @@ class PascalGrammarGraph extends GrammarGraph {
       (BracketOpen ~ 'expr_list ~ BracketClose) |
         (Dot ~ Identifier) |
         Pointer
-    ).*
+    ).+
   }
 
   'palist ~> {
-    !(BraceOpen ~ 'palist_args ~ BraceClose)
+    !(ParenthesisOpen ~ 'palist_args ~ ParenthesisClose)
   }
 
   'palist_args ~> {
-    'palist_branches | ('palist_args ~ SemiColon)
+    'palist_branches ~ !(SemiColon ~ 'palist_args)
   }
 
   'palist_branches ~> {
-    ("PROC" ~  'identifier_list) |
-    (("FUNC" | 'VAR) ~ 'identifier_list ~ Colon ~ Identifier)
+    ("PROCEDURE" ~  'identifier_list) |
+    (("FUNCTION" | "VAR") ~ 'identifier_list ~ Colon ~ Identifier)
   }
 
   'factor ~> {
     (Identifier ~ 'infipo) | //VAIDEN
-      (Identifier ~ !(BraceOpen ~ 'expr_list ~ BraceClose)) | //FUIDEN
-      Identifier | //COIDEN
-      "NIL" |
-      'number |
-      String |
-      (BraceOpen ~ 'expr ~ BraceClose) |
-      'factor_expr |
-      ("NOT" ~ 'factor)
+    (Identifier ~ !(ParenthesisOpen ~ 'expr_list ~ ParenthesisClose)) | //FUIDEN
+     Identifier | //COIDEN
+     "NIL" |
+     'number |
+     String |
+     (ParenthesisOpen ~ 'expr ~ ParenthesisClose) |
+     'factor_expr |
+     ("NOT" ~ 'factor)
   }
 
   'factor_expr ~> {
@@ -163,7 +160,7 @@ class PascalGrammarGraph extends GrammarGraph {
     'filist_const_list ~ !(SemiColon ~ 'filist_list)
   }
 
-  'filist_const_list ~> { ('const_value_list ~ Colon ~ BraceOpen ~ 'filist ~ BraceClose) }
+  'filist_const_list ~> { ('const_value_list ~ Colon ~ ParenthesisOpen ~ 'filist ~ ParenthesisClose) }
 
   'filist_iden_list ~> {
     ('identifier_list ~ Colon ~ 'type) ~ !(SemiColon ~ 'filist_iden_list )
@@ -172,7 +169,7 @@ class PascalGrammarGraph extends GrammarGraph {
   'statement ~> {
     ('number ~ Colon) |
     ("BEGIN" ~ 'statement_list ~ "END") |
-    ("GOTO" ~ 'number)
+    ("GOTO" ~ 'number) |
     ('statement_setvalue_branch) |
     ('statement_priden_branch) |
     ('statement_if_branch) |
@@ -186,30 +183,29 @@ class PascalGrammarGraph extends GrammarGraph {
   'statement_while_branch ~> { "WHILE" ~ 'expr ~ "DO" ~ 'statement }
 
   'statement_repeat_branch ~> {
-    "WHILE" ~ 'statement_list ~ "UNTIL" ~ 'expr
+    "REPEAT" ~ 'statement_list ~ "UNTIL" ~ 'expr
   }
 
   'statement_for_branch ~> {
-    "FOR" ~ Identifier ~ 'infipo ~ AttributionOperator ~ 'expr ~ ("TO" | "DOWNTO") ~ 'expr ~ "DO" ~ 'statement
+    "FOR" ~ Identifier ~ (!'infipo) ~ AttributionOperator ~ 'expr ~ ("TO" | "DOWNTO") ~ 'expr ~ "DO" ~ 'statement
   }
 
   'statement_with_branch ~> { "WITH" ~ 'statement_infipo_list ~ "DO" ~ 'statement }
 
   'statement_infipo_list ~> {
-    ( Identifier ~ 'infipo) ~ !(Comma ~ 'statement_infipo_list)
+    ( Identifier ~ !('infipo)) ~ !(Comma ~ 'statement_infipo_list)
   }
 
   'statement_setvalue_branch ~> {
-    (Identifier | (Identifier ~ 'infipo)) ~ AttributionOperator ~ 'expr
+    ((Identifier ~ 'infipo) | Identifier) ~ AttributionOperator ~ 'expr
   }
 
   'statement_priden_branch ~> {
-    Identifier ~ BraceOpen ~ 'priden_list ~ BraceClose
+    Identifier ~ !(ParenthesisOpen ~ 'priden_list ~ ParenthesisClose)
   }
 
   'priden_list ~> {
-    (Identifier | 'expr) ~
-    !(Comma ~ 'priden_list)
+    ('expr | Identifier) ~ !(Comma ~ 'priden_list)
   }
 
   'statement_if_branch ~> {

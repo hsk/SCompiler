@@ -1,5 +1,6 @@
 package org.scompiler
 
+import exception.WrongPathException
 import io.BufferedSource
 import lexer.{Token, LexicalTokenizer}
 import collection.Iterator
@@ -21,6 +22,13 @@ object Main {
     val context = new NodeTraverseContext(lexicalTokenizer)
     val pascalGraph = new PascalGrammarGraph
 
-    pascalGraph.getNonTerminal('program).get.traverseGraph(context)
+    try {
+      pascalGraph.getNonTerminal('program).get.traverseGraph(context)
+    } catch {
+      case ex: WrongPathException => {
+        println(ex.nodeCause)
+        ex.printStackTrace()
+      }
+    }
   }
 }

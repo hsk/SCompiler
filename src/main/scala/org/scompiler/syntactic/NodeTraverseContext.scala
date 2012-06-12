@@ -1,7 +1,7 @@
 package org.scompiler.syntactic
 
-import org.scompiler.lexer.{Token, LexicalTokenizer}
 import collection.mutable.{ListBuffer, ArrayBuffer, LinkedList}
+import org.scompiler.lexer.{TokenType, Token, LexicalTokenizer}
 
 class NodeTraverseContext(private val tokenizer: LexicalTokenizer) {
   case class Error(token: Token, line: Int, column: Int)
@@ -13,7 +13,7 @@ class NodeTraverseContext(private val tokenizer: LexicalTokenizer) {
   def currentToken: Option[Token] = {
     while (currentTokenPosition >= tokenBuffer.size && tokenizer.hasNext) {
       val token = tokenizer.next()
-      if (token != null) {
+      if (token != null && token.tokenType != TokenType.Commentary) {
         tokenBuffer = tokenBuffer append LinkedList(token)
       }
     }

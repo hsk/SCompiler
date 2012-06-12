@@ -6,7 +6,6 @@ import org.scompiler.syntactic.expression.{ExpressionCardinality, AbstractExpres
 import org.scompiler.syntactic.expression.ExpressionCardinality._
 
 class CardinalityNode(node: Node) extends Node with AbstractExpression {
-  lock()
 
   @throws(classOf[WrongPathException])
   def traverseGraph(context: NodeTraverseContext) {
@@ -29,7 +28,7 @@ class CardinalityNode(node: Node) extends Node with AbstractExpression {
         node.traverseGraph(context)
         return true
       } catch {
-        case ex: Exception => {
+        case ex: WrongPathException => {
           context.resetToPosition(currentPosition)
           return false
         }

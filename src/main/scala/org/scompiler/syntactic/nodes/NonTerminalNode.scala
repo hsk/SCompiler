@@ -21,7 +21,7 @@ class NonTerminalNode(val nodeName: Symbol, graph: GrammarGraph) extends Node {
     if (expr.isDefined) {
       expr.get.asInstanceOf[Node].traverseGraph(context)
     } else {
-      throw new WrongPathException(this)
+      throw new RuntimeException(nodeName + " dont exists")
     }
   }
 }

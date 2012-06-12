@@ -26,10 +26,18 @@ class NumericStateInit extends State {
       return this
     }
 
-    case '.' if !hasPreviousPunctuation => {
-      hasPreviousPunctuation = true
-      expectingAnotherNumber = true
-      return this
+    case '.' => {
+      if(!hasPreviousPunctuation) {
+        hasPreviousPunctuation = true
+        expectingAnotherNumber = true
+        return this
+      } else if(expectingAnotherNumber) {
+        tokenBuffer.finishToken(TokenType.NaturalNumber)
+        tokenBuffer.registerCompleteToken(TokenType.Range, "..")
+        return new InitialState
+      } else {
+        return new InvalidTokenState
+      }
     }
 
     case 'E' | 'e' if (!expectingAnotherNumber) => new NumericStateScientificNotation

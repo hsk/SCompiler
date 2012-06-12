@@ -64,6 +64,7 @@ trait AbstractExpression {
     newInnerExpr.init(graph, None)
     newInnerExpr.cardinality = cardinality
     newInnerExpr.listOfNodes += Tuple2(this.asInstanceOf[Node], 0)
+    newInnerExpr.lock()
 
     return newInnerExpr
   }
@@ -111,7 +112,7 @@ trait AbstractExpression {
     case _ => {
       val newNode = ExpressionFactory.createExpressionNode(graph, SEQUENCE)
       if(!listOfNodes.isEmpty){
-        if (listOfNodes.size == 1) {
+        if (listOfNodes.size == 1 && !locked) {
           newNode.listOfNodes += listOfNodes.head
         } else {
           newNode.~(this)
@@ -132,7 +133,7 @@ trait AbstractExpression {
     case _ => {
       val newNode = ExpressionFactory.createExpressionNode(graph, ALTERNATIVE)
       if (!listOfNodes.isEmpty) {
-        if (listOfNodes.size == 1) {
+        if (listOfNodes.size == 1 && !locked) {
           newNode.listOfNodes += listOfNodes.head
         } else {
           newNode.|(this)
