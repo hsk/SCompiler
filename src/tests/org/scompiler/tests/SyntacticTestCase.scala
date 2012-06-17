@@ -109,7 +109,20 @@ class SyntacticTestCase extends FunSpec with ShouldMatchers {
       } catch {
         case ex: WrongPathException => fail("fail at node " + ex.nodeCause)
       }
+     }
 
-    }
+      it ("Should recognize a simple syntactic error"){
+        val pascalGrammar = new PascalGrammarGraph
+
+        val input = "program testerror; begin x := for i:=1 end;"
+        try {
+          testTraverse(pascalGrammar, input, 'program)
+          fail("Syntactic error expected")
+        } catch {
+          case ex: WrongPathException => {/* Expected */ }
+        }
+
+      }
   }
 }
+
