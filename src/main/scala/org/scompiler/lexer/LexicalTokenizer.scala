@@ -7,6 +7,8 @@ import states.InitialState
 class LexicalTokenizer(input: Iterator[Char]) extends Iterator[Token] {
 
   private var actualCharacter: Char = '\0'
+  private var pos = 0
+  private var line = 1
   private var state: State = new InitialState
   private val tokenBuffer: TokenBuffer = new TokenBuffer
 
@@ -19,6 +21,13 @@ class LexicalTokenizer(input: Iterator[Char]) extends Iterator[Token] {
       } else {
         actualCharacter = input.next()
       }
+      if (actualCharacter.equals('\n')) {
+        line += 1
+        pos = 0
+      } else {
+        pos += 1
+      }
+      tokenBuffer.setCurrentPosition(line, pos)
 
       state = state.nextState(actualCharacter, tokenBuffer)
 
@@ -26,7 +35,7 @@ class LexicalTokenizer(input: Iterator[Char]) extends Iterator[Token] {
         tokenBuffer.registerCharacter(actualCharacter)
       }
 
-      if (tokenBuffer.hasFinishedToken && input.hasNext) return;
+      if (tokenBuffer.hasFinishedToken && input.hasNext) return
     }
 
     state = state.nextState('\0', tokenBuffer)

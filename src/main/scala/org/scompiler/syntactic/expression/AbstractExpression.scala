@@ -8,10 +8,11 @@ import org.scompiler.syntactic.expression.ExpressionOperator.{ExpressionOperator
 import org.scompiler.syntactic._
 import nodes.{CardinalityNode, SeqNode, NonTerminalNode, TerminalNode}
 import org.scompiler.exception.WrongPathException
+import collection.mutable
 
 trait AbstractExpression {
 
-  protected var listOfNodes = new ArrayBuffer[(Node,Int)]
+  protected var listOfNodes = new mutable.MutableList[(Node,Int)]
   private var locked = false;
   protected var operation: ExpressionOperator = UNDEFINED
   protected var cardinality: ExpressionCardinality = ONLY_ONE

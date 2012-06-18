@@ -6,10 +6,20 @@ import org.scompiler.lexer.TokenType._
 import org.scompiler.lexer.LexicalConstants._
 
 class TokenBuffer {
+
   private var tokens = new ArrayBuffer[Token]
   private var currentToken = ""
+  private var currentPosition: (Int, Int) = (1,0)
+  private var tokenPosition: (Int, Int) = currentPosition
+
+  def setCurrentPosition(line: Int, position: Int) {
+    currentPosition = (line, position)
+  }
 
   def registerCharacter(character: Char) {
+    if (currentToken.isEmpty) {
+      tokenPosition = currentPosition
+    }
     currentToken += character
   }
 
@@ -22,12 +32,12 @@ class TokenBuffer {
     if (!currentToken.isEmpty) {
       if (tokenType == TokenType.Identifier) {
         if (reservedWords contains currentToken.toUpperCase) {
-          tokens += (new Token(TokenType.ReservedWord, currentToken))
+          tokens += (new Token(TokenType.ReservedWord, currentToken, tokenPosition))
           currentToken = ""
           return
         }
       }
-      tokens += (new Token(tokenType, currentToken))
+      tokens += (new Token(tokenType, currentToken, tokenPosition))
     }
     currentToken = ""
   }

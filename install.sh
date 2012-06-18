@@ -1,6 +1,6 @@
 #!/bin/bash
 
-apache_maven_link='http://linorg.usp.br/apache/maven/binaries/apache-maven-3.0.4-bin.tar.gz'
+apache_maven_link='http://apache.mirror.pop-sc.rnp.br/apache/maven/binaries/apache-maven-3.0.4-bin.tar.gz'
 
 if [ ! -d maven ]; then
     rm apache-maven-3.0.4-bin.tar.gz

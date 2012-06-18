@@ -4,6 +4,7 @@ import collection.mutable.{ArrayBuffer}
 import org.scompiler.exception.WrongPathException
 import org.scompiler.syntactic.expression.AbstractExpression
 import org.scompiler.syntactic.{NodeTraverseContext, Node, GrammarGraph}
+import org.scompiler.lexer.Token
 
 class NonTerminalNode(val nodeName: Symbol, graph: GrammarGraph) extends Node {
   private var expr: Option[AbstractExpression] = None
@@ -23,5 +24,9 @@ class NonTerminalNode(val nodeName: Symbol, graph: GrammarGraph) extends Node {
     } else {
       throw new RuntimeException(nodeName + " dont exists")
     }
+  }
+
+  def isValid(token: Token):Boolean = {
+    return expr.get.asInstanceOf[Node].isValid(token)
   }
 }

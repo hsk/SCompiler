@@ -1,0 +1,6 @@
+program teste;
+begin
+ removao := := deToken;
+ adicao := deToken * (1 + + 2);
+ substituicao = deToken - 1
+end.

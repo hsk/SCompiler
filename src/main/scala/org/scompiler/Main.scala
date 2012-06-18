@@ -23,12 +23,13 @@ object Main {
     val pascalGraph = new PascalGrammarGraph
 
     try {
-      pascalGraph.getNonTerminal('program).get.traverseGraph(context)
+      pascalGraph.traverse('program, context)
     } catch {
       case ex: WrongPathException => {
         println(ex.nodeCause)
         ex.printStackTrace()
       }
     }
+    println(context.errors.mkString("\n"))
   }
 }

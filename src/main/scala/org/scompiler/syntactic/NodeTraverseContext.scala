@@ -4,13 +4,16 @@ import collection.mutable.{ListBuffer, ArrayBuffer, LinkedList}
 import org.scompiler.lexer.{TokenType, Token, LexicalTokenizer}
 
 class NodeTraverseContext(private val tokenizer: LexicalTokenizer) {
-  case class Error(token: Token, line: Int, column: Int)
+  case class Error(token: Token, description: String)
 
-  private val errors = new LinkedList[Error]
   private var tokenBuffer = new LinkedList[Token]
   private var currentTokenPosition: Int = 0
+  var allowError = false
+  var errors = new LinkedList[Error]
 
-  def currentToken: Option[Token] = {
+  def consumeToken(): Option[Token] = consumeToken(true)
+
+  def consumeToken(movePosition: Boolean): Option[Token] = {
     while (currentTokenPosition >= tokenBuffer.size && tokenizer.hasNext) {
       val token = tokenizer.next()
       if (token != null && token.tokenType != TokenType.Commentary) {
@@ -20,7 +23,9 @@ class NodeTraverseContext(private val tokenizer: LexicalTokenizer) {
 
     val actualToken = tokenBuffer.get(currentTokenPosition)
 
-    currentTokenPosition += 1
+    if (movePosition) {
+      currentTokenPosition += 1
+    }
 
     return actualToken
   }
@@ -34,10 +39,8 @@ class NodeTraverseContext(private val tokenizer: LexicalTokenizer) {
     }
   }
 
-  def registerError() {
-    val token = tokenBuffer.get(currentPosition).get
-
-    errors append LinkedList(Error(token, 0, 0))
+  def registerError(token: Token, description: String) {
+    errors = errors append LinkedList(Error(token, description))
   }
 
   def hasFinishedTokens = currentPosition.equals(tokenBuffer.size)

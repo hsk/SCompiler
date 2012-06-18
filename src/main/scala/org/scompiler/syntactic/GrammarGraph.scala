@@ -5,6 +5,8 @@ import nodes.{SeqNode, NonTerminalNode, TerminalNode}
 import org.scompiler.lexer.TokenType._
 import collection.mutable.HashMap
 import org.scompiler.lexer.LexicalConstants
+import com.sun.org.apache.xml.internal.utils.WrongParserException
+import org.scompiler.exception.WrongPathException
 
 trait GrammarGraph {
   private val terminals = new HashMap[TokenType, TerminalNode]
@@ -50,5 +52,18 @@ trait GrammarGraph {
     val expr = new SeqNode
     expr.init(this, Some(node))
     return expr
+  }
+
+
+  def traverse(symbol: Symbol, context: NodeTraverseContext) {
+    try {
+      getNonTerminal(symbol).get.traverseGraph(context)
+    } catch {
+      case err: WrongPathException => {
+        context.allowError = true
+        context.resetToPosition(0)
+        getNonTerminal(symbol).get.traverseGraph(context)
+      }
+    }
   }
 }

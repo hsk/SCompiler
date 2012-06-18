@@ -113,7 +113,7 @@ class PascalGrammarGraph extends GrammarGraph {
       (BracketOpen ~ 'expr_list ~ BracketClose) |
         (Dot ~ Identifier) |
         Pointer
-    ).+
+    ).*
   }
 
   'palist ~> {
@@ -130,9 +130,9 @@ class PascalGrammarGraph extends GrammarGraph {
   }
 
   'factor ~> {
-    (Identifier ~ 'infipo) | //VAIDEN
-    (Identifier ~ !(ParenthesisOpen ~ 'expr_list ~ ParenthesisClose)) | //FUIDEN
-     Identifier | //COIDEN
+    (Identifier ~ !((ParenthesisOpen ~ 'expr_list ~ ParenthesisClose) | 'infipo))  | //FUIDEN
+//    (Identifier ~ 'infipo) | //VAIDEN
+//     Identifier | //COIDEN
      "NIL" |
      'number |
      String |
@@ -201,7 +201,7 @@ class PascalGrammarGraph extends GrammarGraph {
   }
 
   'statement_priden_branch ~> {
-    Identifier ~ !(ParenthesisOpen ~ 'priden_list ~ ParenthesisClose)
+    Identifier ~ ParenthesisOpen ~ !('priden_list) ~ ParenthesisClose
   }
 
   'priden_list ~> {
