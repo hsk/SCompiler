@@ -60,9 +60,7 @@ trait GrammarGraph {
       getNonTerminal(symbol).get.traverseGraph(context)
     } catch {
       case err: WrongPathException => {
-        context.allowError = true
-        context.resetToPosition(0)
-        getNonTerminal(symbol).get.traverseGraph(context)
+        println("There are error in file")
       }
     }
   }

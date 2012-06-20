@@ -7,7 +7,21 @@ import org.scompiler.lexer.TokenType._
 import collection.mutable
 
 class NodeTraverseContext(private val tokenizer: LexicalTokenizer) {
-  case class Error(token: Token, description: String)
+  case class Error(token: Token, description: String) {
+    override def toString: String = {
+      val res = new StringBuilder()
+
+      if (token != null) {
+        res.append(token.position._1).append(":").append(token.position._2)
+        res.append(" - '").append(token.name).append("' (").append(token.tokenType).append(") - ")
+      }
+
+      res.append(description)
+
+
+      return res.toString()
+    }
+  }
 
   private var tokenBuffer = new mutable.LinkedList[Token]
   private var currentTokenPosition = 0
@@ -74,8 +88,10 @@ class NodeTraverseContext(private val tokenizer: LexicalTokenizer) {
   }
 
   def registerError(token: Token, description: String) {
-    errors = errors append LinkedList(Error(token, description))
-    errorPosition += 1
+    if(errors.find { error => error.token == token }.isEmpty) {
+      errors = errors append LinkedList(Error(token, description))
+      errorPosition += 1
+    }
   }
 
   def hasFinishedTokens = currentPosition.equals(tokenBuffer.size)

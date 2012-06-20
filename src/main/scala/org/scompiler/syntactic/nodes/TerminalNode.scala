@@ -6,7 +6,7 @@ import org.scompiler.lexer.Token
 import org.scompiler.exception.WrongPathException
 import org.scompiler.syntactic.{NodeTraverseContext, Node}
 
-class TerminalNode(tokenType: TokenType, expectedValue: Option[String]) extends Node {
+class TerminalNode(val tokenType: TokenType, val expectedValue: Option[String]) extends Node {
 
   def this(tokenType: TokenType) = this(tokenType, None)
 
@@ -42,7 +42,7 @@ class TerminalNode(tokenType: TokenType, expectedValue: Option[String]) extends 
 
   override def toString = expectedValue.getOrElse(tokenType.toString)
 
-  def isValid(token: Token): Boolean = {
+  def isValid(token: Token, accessedNodes: Set[Node]): Boolean = {
     if (!tokenType.equals(token.tokenType)) {
       return false
     }

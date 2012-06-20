@@ -1,0 +1,17 @@
+program teste;
+
+begin
+  begin
+    if( adsas = 132) then
+      asda as
+    else
+      asda := 1
+  end;
+  asd := := asda;
+  asdas := asd;
+
+  if(teste = 1) then
+   asd := 12321
+  else
+    asda := (12 - 123) = ( 213 -23)
+end.

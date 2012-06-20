@@ -1,0 +1,13 @@
+program teste;
+begin
+ case j of     { integer switch }
+      1 : write('j is 1') ;
+      2 : begin
+             write('j is 2') ;
+             asd := asd
+          end 
+   end ;
+ removao := := deToken;
+ adicao := deToken * (1 + + 2);
+ substituicao = deToken - 1
+end.

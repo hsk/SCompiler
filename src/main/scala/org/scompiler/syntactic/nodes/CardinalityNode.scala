@@ -44,7 +44,10 @@ class CardinalityNode(node: Node) extends Node with AbstractExpression {
     }
   }
 
-  def isValid(token: Token): Boolean = {
-    return node.isValid(token)
+  override def isValid(token: Token, accessedNodes: Set[Node]): Boolean = {
+    if (accessedNodes contains this) {
+      return false
+    }
+    return node.isValid(token, accessedNodes + this)
   }
 }

@@ -22,14 +22,12 @@ object Main {
     val context = new NodeTraverseContext(lexicalTokenizer)
     val pascalGraph = new PascalGrammarGraph
 
-    try {
-      pascalGraph.traverse('program, context)
-    } catch {
-      case ex: WrongPathException => {
-        println(ex.nodeCause)
-        ex.printStackTrace()
-      }
+
+    pascalGraph.traverse('program, context)
+    if (context.errors.isEmpty) {
+      println("program whitout a error")
+    } else {
+      println(context.errors.mkString("\n"))
     }
-    println(context.errors.mkString("\n"))
   }
 }

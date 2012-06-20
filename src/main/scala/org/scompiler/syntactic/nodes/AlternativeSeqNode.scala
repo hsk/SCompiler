@@ -21,13 +21,16 @@ class AlternativeSeqNode extends Node with AbstractExpression {
       success = tryEachNode(context, ignoreFirst = false)
       if (!success) {
         success = tryEachNode(context, ignoreFirst = true)
-//        if(!success && !context.ignoreAllMode) {
-//          context.ignoreAllMode = true
-//          context.registerError(context.consumeToken(false).get, "Ignoring all until end of statement")
-//          context.ignoreAllUntilEndToken()
-//
-//          success = tryEachNode(context, ignoreFirst = true)
-//        }
+        if(!success && !context.ignoreAllMode) {
+          context.ignoreAllMode = true
+          if (context.consumeToken(false).isDefined) {
+            context.registerError(context.consumeToken(false).get, "Ignoring all until end of statement")
+          } else {
+            context.registerError(null, "Unexpected of of file")
+          }
+
+          success = tryEachNode(context, ignoreFirst = true)
+        }
       }
     }
 
@@ -76,7 +79,10 @@ class AlternativeSeqNode extends Node with AbstractExpression {
     false
   }
 
-  def isValid(token: Token): Boolean = {
-    return listOfNodes.exists{ node => node._1.isValid(token) }
+  override def isValid(token: Token, accessedNodes: Set[Node]): Boolean = {
+    if(accessedNodes contains this) {
+      return false
+    }
+    return listOfNodes.exists{ node => node._1.isValid(token, accessedNodes + this) }
   }
 }

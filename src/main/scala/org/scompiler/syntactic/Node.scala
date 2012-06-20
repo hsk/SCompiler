@@ -7,5 +7,5 @@ abstract class Node {
   @throws(classOf[WrongPathException])
   def traverseGraph(context: NodeTraverseContext)
 
-  def isValid(token: Token): Boolean
+  def isValid(token: Token, accessedNodes: Set[Node] = Set()): Boolean
 }

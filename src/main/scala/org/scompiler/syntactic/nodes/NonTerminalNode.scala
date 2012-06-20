@@ -26,7 +26,11 @@ class NonTerminalNode(val nodeName: Symbol, graph: GrammarGraph) extends Node {
     }
   }
 
-  def isValid(token: Token):Boolean = {
-    return expr.get.asInstanceOf[Node].isValid(token)
+  override def isValid(token: Token, accessedNodes: Set[Node]): Boolean = {
+    if(accessedNodes contains this) {
+      return false
+    }
+
+    return expr.get.asInstanceOf[Node].isValid(token, accessedNodes + this)
   }
 }

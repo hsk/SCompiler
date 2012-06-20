@@ -1,0 +1,11 @@
+program esda;
+
+begin
+      case jd f     { integer switch }
+      1 : write('j is 1') ;
+      2 : begin
+             write('j is 2') ;
+             asd := asd
+          end
+      end;
+end.

@@ -45,8 +45,9 @@ PROGRAM a1 (input,output);
      * Procedure to read the next non-blank.  It skips leading blanks, then
      * reads the string up to the first blank or eoln.
      ***********************************************************************}
-    PROCEDURE ReadString(VAR Str: string);
-        VAR
+    PROCEDURE ReadString(Str: string);
+   
+     VAR
             Ch: char;
         BEGIN
             Ch := ' ';

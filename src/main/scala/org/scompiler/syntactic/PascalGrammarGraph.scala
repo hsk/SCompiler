@@ -4,7 +4,7 @@ import org.scompiler.lexer.TokenType._
 
 class PascalGrammarGraph extends GrammarGraph {
 
-  'program ~> { 'program_heading ~ SemiColon ~ 'block ~ Dot }
+  'program ~> { ('program_heading ~ SemiColon ~ 'block ~ Dot) | "DUMMY" }
 
   'program_heading ~> {
     "PROGRAM" ~ Identifier ~ !(ParenthesisOpen ~ 'identifier_list ~ ParenthesisClose)
@@ -50,7 +50,9 @@ class PascalGrammarGraph extends GrammarGraph {
     ) ~ SemiColon ~ 'block ~ SemiColon
   }
 
-  'statement_part ~> { "BEGIN" ~ 'statement_list ~ "END" }
+  'statement_part ~> { "BEGIN" ~ 'statement_list_semi_optional ~ "END" }
+
+  'statement_list_semi_optional ~> { 'statement ~ !(SemiColon ~ !('statement_list_semi_optional)) }
 
   'statement_list ~> { 'statement ~ !(SemiColon ~ 'statement_list) }
 
@@ -126,13 +128,12 @@ class PascalGrammarGraph extends GrammarGraph {
 
   'palist_branches ~> {
     ("PROCEDURE" ~  'identifier_list) |
-    (("FUNCTION" | "VAR") ~ 'identifier_list ~ Colon ~ Identifier)
+    (("VAR" | "FUNCTION") ~ 'identifier_list ~ Colon ~ Identifier) |
+    ('identifier_list ~ Colon ~ Identifier)
   }
 
   'factor ~> {
-    (Identifier ~ !((ParenthesisOpen ~ 'expr_list ~ ParenthesisClose) | 'infipo))  | //FUIDEN
-//    (Identifier ~ 'infipo) | //VAIDEN
-//     Identifier | //COIDEN
+    (Identifier ~ !((ParenthesisOpen ~ 'expr_list ~ ParenthesisClose) | 'infipo))  |
      "NIL" |
      'number |
      String |
@@ -151,7 +152,7 @@ class PascalGrammarGraph extends GrammarGraph {
 
   'filist ~> {
     ('filist_iden_list) ~
-    "CASE" ~ !(Identifier ~ Dot) ~ //FIXME: VERIFICAR
+    "CASE" ~ !(Identifier ~ Dot) ~
     Pointer ~ Identifier ~ "OF" ~ 'filist_list
   }
 
@@ -167,16 +168,16 @@ class PascalGrammarGraph extends GrammarGraph {
 
   'statement ~> {
     ('number ~ Colon) |
-    ("BEGIN" ~ 'statement_list ~ "END") |
+    ("BEGIN" ~ 'statement_list_semi_optional ~ "END") |
     ("GOTO" ~ 'number) |
     ('statement_setvalue_branch) |
     ('statement_priden_branch) |
     ('statement_if_branch) |
     ('statement_case_branch) |
     ('statement_while_branch) |
-    ('statement_repeat_branch) |
     ('statement_for_branch) |
-    ('statement_with_branch)
+    ('statement_with_branch) |
+    ('statement_repeat_branch)
   }
 
   'statement_while_branch ~> { "WHILE" ~ 'expr ~ "DO" ~ 'statement }
