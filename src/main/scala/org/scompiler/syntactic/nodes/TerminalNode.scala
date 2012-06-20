@@ -16,8 +16,9 @@ class TerminalNode(tokenType: TokenType, expectedValue: Option[String]) extends 
     if (context.ignoreAllMode) {
       if (endOfStatementTokens.contains(tokenType)) {
         val tokenString = if (tokenType == SemiColon) ";" else expectedValue.get
-        if (context.expectEndToken.equals(tokenString)) {
+        if (tokenString.equals(";") || tokenString.equals("END")) {
           context.ignoreAllMode = false
+          context.ignoreAllUntilEndToken(tokenString)
         }
       }
     } else {

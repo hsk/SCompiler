@@ -21,13 +21,13 @@ class AlternativeSeqNode extends Node with AbstractExpression {
       success = tryEachNode(context, ignoreFirst = false)
       if (!success) {
         success = tryEachNode(context, ignoreFirst = true)
-        if(!success && !context.ignoreAllMode) {
-          context.ignoreAllMode = true
-          context.registerError(context.consumeToken(false).get, "Ignoring all until end of statement")
-          context.ignoreAllUntilEndToken()
-
-          success = tryEachNode(context, ignoreFirst = true)
-        }
+//        if(!success && !context.ignoreAllMode) {
+//          context.ignoreAllMode = true
+//          context.registerError(context.consumeToken(false).get, "Ignoring all until end of statement")
+//          context.ignoreAllUntilEndToken()
+//
+//          success = tryEachNode(context, ignoreFirst = true)
+//        }
       }
     }
 

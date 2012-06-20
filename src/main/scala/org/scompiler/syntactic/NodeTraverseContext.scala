@@ -12,7 +12,6 @@ class NodeTraverseContext(private val tokenizer: LexicalTokenizer) {
   private var tokenBuffer = new mutable.LinkedList[Token]
   private var currentTokenPosition = 0
   private var errorPosition = 0
-  private var ignoreAllExpectEndToken: String = null
   val accessedNodes = new mutable.ArrayBuffer[Node]
 
   var errors = new mutable.LinkedList[Error]
@@ -38,20 +37,17 @@ class NodeTraverseContext(private val tokenizer: LexicalTokenizer) {
     return actualToken
   }
 
-  def expectEndToken = ignoreAllExpectEndToken
-
-  def ignoreAllUntilEndToken() {
+  def ignoreAllUntilEndToken(expectTokenValue: String) {
     try {
       Iterator.continually(consumeToken).takeWhile{
-        t=> !(t.get.tokenType.equals(SemiColon) || t.get.name.equals("END") )
+        t=> !(t.get.name.equals(expectTokenValue))
       }.toList
-      ignoreAllExpectEndToken = tokenBuffer(currentPosition-1).name
-      accessedNodes.clear()
     } catch {
       case ex: Exception => {
 //        throw new RuntimeException //TODO: Change to a different exception
       }
     }
+    accessedNodes.clear()
   }
 
   def currentPosition: Int = currentTokenPosition
