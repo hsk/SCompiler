@@ -26,7 +26,7 @@ class SeqNode extends Node with AbstractExpression {
         case ex:WrongPathException => {
 
           var fixed = false
-          if (context.allowError) {
+          if (context.allowError && !context.ignoreAllMode) {
             //Errors treatments
             context.resetToPosition(currentPosition)
 
@@ -55,7 +55,10 @@ class SeqNode extends Node with AbstractExpression {
               }
             }
           }
-          if (!fixed) {
+
+          if(context.ignoreAllMode) {
+            nodePosition += 1
+          } else if (!fixed) {
             throw new WrongPathException(this)
           }
         }

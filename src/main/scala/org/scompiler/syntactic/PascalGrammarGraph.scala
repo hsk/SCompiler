@@ -146,8 +146,7 @@ class PascalGrammarGraph extends GrammarGraph {
   }
 
   'factor_expr_list ~> {
-    ('expr ~ !(Range ~ 'expr)) |
-      ('factor_expr_list ~ Comma)
+    ('expr ~ !(Range ~ 'expr)) ~ !(Comma ~ 'factor_expr_list)
   }
 
   'filist ~> {

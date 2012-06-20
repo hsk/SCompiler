@@ -2,7 +2,7 @@ package org.scompiler.syntactic.nodes
 
 import org.scompiler.syntactic.expression.{ExpressionOperator, AbstractExpression}
 import org.scompiler.exception.WrongPathException
-import org.scompiler.syntactic.{Node, NodeTraverseContext, GrammarGraph}
+import org.scompiler.syntactic.{Node, NodeTraverseContext}
 import org.scompiler.lexer.Token
 
 class AlternativeSeqNode extends Node with AbstractExpression {
@@ -14,13 +14,20 @@ class AlternativeSeqNode extends Node with AbstractExpression {
     var success = false
 
     context.allowError = false
-    success = tryEachNode(context, false)
+    success = tryEachNode(context, ignoreFirst = false)
 
     if (!success) {
       context.allowError = true
-      success = tryEachNode(context, false)
+      success = tryEachNode(context, ignoreFirst = false)
       if (!success) {
-        success = tryEachNode(context, true)
+        success = tryEachNode(context, ignoreFirst = true)
+        if(!success && !context.ignoreAllMode) {
+          context.ignoreAllMode = true
+          context.registerError(context.consumeToken(false).get, "Ignoring all until end of statement")
+          context.ignoreAllUntilEndToken()
+
+          success = tryEachNode(context, ignoreFirst = true)
+        }
       }
     }
 
@@ -33,20 +40,36 @@ class AlternativeSeqNode extends Node with AbstractExpression {
 
   def tryEachNode(context: NodeTraverseContext, ignoreFirst: Boolean): Boolean = {
     val originalPosition = context.currentPosition
-    val iterator = listOfNodes.iterator
+    val errorPosition = context.currentErrorPosition
+    val iterator = if(context.ignoreAllMode) listOfNodes.reverseIterator else listOfNodes.iterator
     val allowError = context.allowError
     while (iterator.hasNext) {
       try {
         val currentNode = iterator.next()
-        val currentToken = context.consumeToken(false)
+        val currentToken = context.consumeToken(movePosition = false)
         if (currentToken.isDefined && (ignoreFirst || currentNode._1.isValid(currentToken.get))) {
           context.allowError = allowError
-          currentNode._1.traverseGraph(context)
-          return true
+          var shouldExecute = true
+          if (context.ignoreAllMode) {
+            if(context.accessedNodes contains currentNode._1) {
+              shouldExecute = false
+            } else {
+              context.accessedNodes += currentNode._1
+            }
+          }
+          if (shouldExecute) {
+            currentNode._1.traverseGraph(context)
+            if (!context.ignoreAllMode) {
+              return true
+            }
+          }
         }
       } catch {
         case wrongPath: WrongPathException => {
-          context.resetToPosition(originalPosition)
+          if(!context.ignoreAllMode) {
+            context.resetToPosition(originalPosition)
+            context.resetErrorToPosition(errorPosition)
+          }
         }
       }
     }

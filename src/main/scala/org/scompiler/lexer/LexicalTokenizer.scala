@@ -11,31 +11,35 @@ class LexicalTokenizer(input: Iterator[Char]) extends Iterator[Token] {
   private var line = 1
   private var state: State = new InitialState
   private val tokenBuffer: TokenBuffer = new TokenBuffer
+  private var keepReading = true
 
   private def processToken() {
-
-    while (input.hasNext) {
+    while (keepReading && input.hasNext) {
       if (state.isInstanceOf[NotDefinedState]) {
         tokenBuffer.finishToken(TokenType.Undefined)
         state = new InitialState
       } else {
         actualCharacter = input.next()
-      }
-      if (actualCharacter.equals('\n')) {
-        line += 1
-        pos = 0
-      } else {
-        pos += 1
-      }
-      tokenBuffer.setCurrentPosition(line, pos)
-
-      state = state.nextState(actualCharacter, tokenBuffer)
-
-      if (!state.isInstanceOf[InitialState] && !state.isInstanceOf[NotDefinedState]) {
-        tokenBuffer.registerCharacter(actualCharacter)
+        keepReading = !actualCharacter.equals('@')
       }
 
-      if (tokenBuffer.hasFinishedToken && input.hasNext) return
+      if(keepReading) {
+        if (actualCharacter.equals('\n')) {
+          line += 1
+          pos = 0
+        } else {
+          pos += 1
+        }
+        tokenBuffer.setCurrentPosition(line, pos)
+
+        state = state.nextState(actualCharacter, tokenBuffer)
+
+        if (!state.isInstanceOf[InitialState] && !state.isInstanceOf[NotDefinedState]) {
+          tokenBuffer.registerCharacter(actualCharacter)
+        }
+
+        if (tokenBuffer.hasFinishedToken && input.hasNext) return
+      }
     }
 
     state = state.nextState('\0', tokenBuffer)
@@ -45,7 +49,7 @@ class LexicalTokenizer(input: Iterator[Char]) extends Iterator[Token] {
     }
   }
 
-  def hasNext = input.hasNext || tokenBuffer.hasFinishedToken
+  def hasNext = keepReading && (input.hasNext || tokenBuffer.hasFinishedToken)
 
   def next(): Token = {
     if (!tokenBuffer.hasFinishedToken) {

@@ -28,7 +28,7 @@ class CardinalityNode(node: Node) extends Node with AbstractExpression {
     def tryTraverse(): Boolean = {
       val currentPosition = context.currentPosition
       try {
-        val currentToken = context.consumeToken(false)
+        val currentToken = context.consumeToken(movePosition = false)
         if (currentToken.isDefined && node.isValid(currentToken.get)) {
           node.traverseGraph(context)
           return true
