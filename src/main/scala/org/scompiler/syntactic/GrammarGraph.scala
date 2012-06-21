@@ -6,7 +6,7 @@ import org.scompiler.lexer.TokenType._
 import collection.mutable.HashMap
 import org.scompiler.lexer.LexicalConstants
 import com.sun.org.apache.xml.internal.utils.WrongParserException
-import org.scompiler.exception.WrongPathException
+import org.scompiler.exception.{UnexpectedEndOfFile, WrongPathException}
 
 trait GrammarGraph {
   private val terminals = new HashMap[TokenType, TerminalNode]
@@ -55,13 +55,40 @@ trait GrammarGraph {
   }
 
 
-  def traverse(symbol: Symbol, context: NodeTraverseContext) {
+  def traverse(symbol: Symbol, context: NodeTraverseContext): Boolean = {
     try {
-      getNonTerminal(symbol).get.traverseGraph(context)
+      try {
+        getNonTerminal(symbol).get.traverseGraph(context)
+        return true
+      } catch {
+        case err: WrongPathException => {
+          try {
+            tryTraverse(context, symbol, allowError = true, ignoreAllMode = false)
+          } catch{
+            case err:WrongPathException => {
+              tryTraverse(context, symbol, allowError = true, ignoreAllMode = true)
+            }
+          }
+        }
+      }
     } catch {
       case err: WrongPathException => {
-        println("There are error in file")
+      }
+      case err: UnexpectedEndOfFile => {
+        println("Err - Unexpected end of file")
+      }
+      case err: StackOverflowError => {
+        println("Err - Unexpected end of file")
       }
     }
+    return false
+  }
+
+  def tryTraverse(context: NodeTraverseContext, symbol: Symbol, allowError: Boolean, ignoreAllMode: Boolean) {
+    context.resetToPosition(0)
+    context.resetErrorToPosition(0)
+    context.allowError = allowError
+    context.ignoreAllMode = ignoreAllMode
+    getNonTerminal(symbol).get.traverseGraph(context)
   }
 }

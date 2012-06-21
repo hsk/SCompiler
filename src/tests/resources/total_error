@@ -1,0 +1,10 @@
+
+int minhafuncao(int x) {
+ return x + 1;
+}
+
+int main() {
+	int end;
+	print(1);
+	return 1;
+}

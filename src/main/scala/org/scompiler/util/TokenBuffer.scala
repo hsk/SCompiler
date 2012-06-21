@@ -47,7 +47,7 @@ class TokenBuffer {
   def consumeToken(): Token = {
     if (!tokens.isEmpty) {
       val token = tokens.head
-      tokens.remove(0);
+      tokens.remove(0)
       return token
     }
 

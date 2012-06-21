@@ -4,7 +4,7 @@ import org.scompiler.lexer.TokenType._
 
 class PascalGrammarGraph extends GrammarGraph {
 
-  'program ~> { ('program_heading ~ SemiColon ~ 'block ~ Dot) | "DUMMY" }
+  'program ~> { 'program_heading ~ SemiColon ~ 'block ~ Dot }
 
   'program_heading ~> {
     "PROGRAM" ~ Identifier ~ !(ParenthesisOpen ~ 'identifier_list ~ ParenthesisClose)

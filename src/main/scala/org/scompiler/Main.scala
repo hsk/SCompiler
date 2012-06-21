@@ -23,10 +23,11 @@ object Main {
     val pascalGraph = new PascalGrammarGraph
 
 
-    pascalGraph.traverse('program, context)
-    if (context.errors.isEmpty) {
-      println("program whitout a error")
+    val success =pascalGraph.traverse('program, context)
+    if (success && context.errors.isEmpty) {
+      println("program without errors")
     } else {
+      println("program has erros in your pascal program.")
       println(context.errors.mkString("\n"))
     }
   }

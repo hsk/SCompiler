@@ -1,17 +1,20 @@
 package org.scompiler.syntactic.nodes
 
 import org.scompiler.syntactic.expression.{ExpressionOperator, AbstractExpression}
-import org.scompiler.exception.WrongPathException
+import org.scompiler.exception.{UnexpectedEndOfFile, WrongPathException}
 import org.scompiler.syntactic.{Node, NodeTraverseContext}
 import org.scompiler.lexer.Token
+import java.rmi.UnexpectedException
 
 class AlternativeSeqNode extends Node with AbstractExpression {
   operation = ExpressionOperator.ALTERNATIVE
+  var hasCorrectInitialToken = false
 
   @throws(classOf[WrongPathException])
   override def traverseGraph(context: NodeTraverseContext) {
     val oldAllowError = context.allowError
     var success = false
+    hasCorrectInitialToken = false
 
     context.allowError = false
     success = tryEachNode(context, ignoreFirst = false)
@@ -26,10 +29,12 @@ class AlternativeSeqNode extends Node with AbstractExpression {
           if (context.consumeToken(false).isDefined) {
             context.registerError(context.consumeToken(false).get, "Ignoring all until end of statement")
           } else {
-            context.registerError(null, "Unexpected of of file")
+            context.registerError(null, "Unexpected end of file")
+            throw new UnexpectedEndOfFile
           }
 
-          success = tryEachNode(context, ignoreFirst = true)
+          success = tryEachNode(context, ignoreFirst = !hasCorrectInitialToken)
+          context.ignoreAllMode = false
         }
       }
     }
@@ -44,35 +49,32 @@ class AlternativeSeqNode extends Node with AbstractExpression {
   def tryEachNode(context: NodeTraverseContext, ignoreFirst: Boolean): Boolean = {
     val originalPosition = context.currentPosition
     val errorPosition = context.currentErrorPosition
-    val iterator = if(context.ignoreAllMode) listOfNodes.reverseIterator else listOfNodes.iterator
+    val iterator = listOfNodes.iterator
     val allowError = context.allowError
     while (iterator.hasNext) {
       try {
         val currentNode = iterator.next()
         val currentToken = context.consumeToken(movePosition = false)
+        if(currentNode._1.isValid(currentToken.get)) {
+          hasCorrectInitialToken = true
+        }
         if (currentToken.isDefined && (ignoreFirst || currentNode._1.isValid(currentToken.get))) {
           context.allowError = allowError
-          var shouldExecute = true
+
           if (context.ignoreAllMode) {
             if(context.accessedNodes contains currentNode._1) {
-              shouldExecute = false
+              throw new WrongPathException(this)
             } else {
               context.accessedNodes += currentNode._1
             }
           }
-          if (shouldExecute) {
-            currentNode._1.traverseGraph(context)
-            if (!context.ignoreAllMode) {
-              return true
-            }
-          }
+          currentNode._1.traverseGraph(context)
+          return true
         }
       } catch {
         case wrongPath: WrongPathException => {
-          if(!context.ignoreAllMode) {
-            context.resetToPosition(originalPosition)
-            context.resetErrorToPosition(errorPosition)
-          }
+          context.resetToPosition(originalPosition)
+          context.resetErrorToPosition(errorPosition)
         }
       }
     }

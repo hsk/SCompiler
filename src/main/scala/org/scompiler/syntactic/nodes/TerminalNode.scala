@@ -26,7 +26,7 @@ class TerminalNode(val tokenType: TokenType, val expectedValue: Option[String]) 
       if (!isValid(token)) {
         //if the current lexical token isn't valid, look for the next one.
         val nextToken = context.consumeToken(movePosition = false)
-        if(nextToken.isDefined && !endOfStatementTokens.contains(token.tokenType) && context.allowError) {
+        if(nextToken.isDefined && context.allowError) {
           if (isValid(nextToken.get)) {
             // if next token is valid for current node
             // than register a error and assume a deletion of the unexpected token

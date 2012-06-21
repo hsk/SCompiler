@@ -54,8 +54,8 @@ class NodeTraverseContext(private val tokenizer: LexicalTokenizer) {
   def ignoreAllUntilEndToken(expectTokenValue: String) {
     try {
       Iterator.continually(consumeToken).takeWhile{
-        t=> !(t.get.name.equals(expectTokenValue))
-      }.toList
+        t=> !(t.get.name.toUpperCase.equals(expectTokenValue.toUpperCase))
+      }.foreach( t => registerError(t.get, "ignoring token"))
     } catch {
       case ex: Exception => {
 //        throw new RuntimeException //TODO: Change to a different exception
